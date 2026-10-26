@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Official Next.js runtime for Netlify. Netlify installs the plugin automatically
+# when it is listed here; it is also in devDependencies for reproducibility.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

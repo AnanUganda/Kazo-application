@@ -1,0 +1,45 @@
+import "server-only";
+import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { stackServerApp } from "./stack";
+import { getDb } from "@/lib/db";
+import { staff, type Staff } from "@/lib/db/schema";
+
+/**
+ * Resolve the signed-in Neon Auth user to an active staff record.
+ * Returns null when nobody is signed in, or the signed-in user has no active
+ * staff row. Use this where a missing session is a valid state.
+ */
+export async function getSessionStaff(): Promise<Staff | null> {
+  const user = await stackServerApp.getUser();
+  if (!user) return null;
+
+  const rows = await getDb()
+    .select()
+    .from(staff)
+    .where(eq(staff.id, user.id))
+    .limit(1);
+
+  const record = rows[0];
+  if (!record || !record.isActive) return null;
+  return record;
+}
+
+/**
+ * Require an active staff session. Redirects to sign-in when not signed in, and
+ * to /no-access when signed in without an active staff record (e.g. deactivated).
+ */
+export async function requireStaff(): Promise<Staff> {
+  const user = await stackServerApp.getUser();
+  if (!user) redirect("/sign-in");
+
+  const rows = await getDb()
+    .select()
+    .from(staff)
+    .where(eq(staff.id, user.id))
+    .limit(1);
+
+  const record = rows[0];
+  if (!record || !record.isActive) redirect("/no-access");
+  return record;
+}

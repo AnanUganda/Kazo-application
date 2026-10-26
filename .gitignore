@@ -1,0 +1,26 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# env — NEVER commit real secrets
+.env
+.env.local
+.env.*.local
+
+# misc
+.DS_Store
+*.pem
+/coverage
+
+# netlify
+.netlify
+
+# logs
+npm-debug.log*
