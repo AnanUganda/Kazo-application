@@ -1,7 +1,10 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
+  check,
   date,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -149,3 +152,166 @@ export type FeeType = typeof feeTypes.$inferSelect;
 export type Intake = typeof intakes.$inferSelect;
 export type NewIntake = typeof intakes.$inferInsert;
 export type IntakeStatus = (typeof intakeStatus.enumValues)[number];
+
+/* ------------------------------------------------------------------ *
+ * Phase 3: applications, students (created on enrolment), and the
+ * append-only payment ledger (fee_charges + payments).
+ * ------------------------------------------------------------------ */
+
+export const applicationStage = pgEnum("application_stage", [
+  "applied_unpaid",
+  "registered",
+  "test_interview",
+  "enrolled",
+  "not_accepted",
+  "withdrew",
+]);
+
+export const testResult = pgEnum("test_result", ["pass", "fail"]);
+
+export const studentStatus = pgEnum("student_status", [
+  "active",
+  "suspended",
+  "dropped_out",
+]);
+
+export const paymentMethod = pgEnum("payment_method", [
+  "mtn",
+  "airtel",
+  "cash",
+]);
+
+export const paymentEntryType = pgEnum("payment_entry_type", [
+  "payment",
+  "reversal",
+]);
+
+/** Applications. `stage_entered_at` drives days-in-stage and the 14-day marker. */
+export const applications = pgTable("applications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  intakeId: uuid("intake_id").references(() => intakes.id),
+  fullName: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email"),
+  dob: date("dob"),
+  location: text("location"),
+  educationLevel: text("education_level"),
+  priorExperience: text("prior_experience"),
+  heardAbout: text("heard_about"),
+  nextOfKinName: text("next_of_kin_name"),
+  nextOfKinPhone: text("next_of_kin_phone"),
+  nextOfKinRelationship: text("next_of_kin_relationship"),
+  stage: applicationStage("stage").notNull().default("applied_unpaid"),
+  stageEnteredAt: timestamp("stage_entered_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  testDate: date("test_date"),
+  testResult: testResult("test_result"),
+  interviewNotes: text("interview_notes"),
+  withdrewReason: text("withdrew_reason"),
+  ...auditColumns(),
+});
+
+/**
+ * Students — created automatically when an application reaches Enrolled.
+ * The list/profile UI, fees and attendance come in Phase 5; booth/equipment
+ * assignment links in from Phase 6.
+ */
+export const students = pgTable("students", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  applicationId: uuid("application_id").references(() => applications.id),
+  intakeId: uuid("intake_id")
+    .notNull()
+    .references(() => intakes.id),
+  fullName: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email"),
+  dob: date("dob"),
+  location: text("location"),
+  nextOfKinName: text("next_of_kin_name"),
+  nextOfKinPhone: text("next_of_kin_phone"),
+  nextOfKinRelationship: text("next_of_kin_relationship"),
+  booth: text("booth"),
+  status: studentStatus("status").notNull().default("active"),
+  ...auditColumns(),
+});
+
+/**
+ * Fee charges — what is owed. Exactly one of application_id / student_id is set
+ * (registration is charged to the application before a student exists).
+ */
+export const feeCharges = pgTable(
+  "fee_charges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    applicationId: uuid("application_id").references(() => applications.id),
+    studentId: uuid("student_id").references(() => students.id),
+    feeTypeCode: text("fee_type_code")
+      .notNull()
+      .references(() => feeTypes.code),
+    amountDue: integer("amount_due").notNull(),
+    semester: integer("semester"),
+    ...auditColumns(),
+  },
+  (t) => [
+    check(
+      "fee_charge_one_party",
+      sql`(${t.applicationId} is not null) <> (${t.studentId} is not null)`,
+    ),
+  ],
+);
+
+/**
+ * Payments — the reusable, append-only ledger record. Never updated or deleted;
+ * a mistake is corrected with a `reversal` entry (reason + who). A future mobile
+ * money integration inserts rows here with no redesign.
+ */
+export const payments = pgTable(
+  "payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    applicationId: uuid("application_id").references(() => applications.id),
+    studentId: uuid("student_id").references(() => students.id),
+    feeChargeId: uuid("fee_charge_id")
+      .notNull()
+      .references(() => feeCharges.id),
+    entryType: paymentEntryType("entry_type").notNull().default("payment"),
+    amount: integer("amount").notNull(),
+    method: paymentMethod("method").notNull(),
+    reference: text("reference"),
+    paidAt: date("paid_at").notNull(),
+    confirmedBy: text("confirmed_by"),
+    reversesPaymentId: uuid("reverses_payment_id").references(
+      (): AnyPgColumn => payments.id,
+    ),
+    reason: text("reason"),
+    ...auditColumns(),
+  },
+  (t) => [
+    check(
+      "payment_one_party",
+      sql`(${t.applicationId} is not null) <> (${t.studentId} is not null)`,
+    ),
+  ],
+);
+
+/** Hashed-IP throttle for the public application form (spam protection). */
+export const applyThrottle = pgTable(
+  "apply_throttle",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ipHash: text("ip_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [index("idx_apply_throttle_hash_time").on(t.ipHash, t.createdAt)],
+);
+
+export type Application = typeof applications.$inferSelect;
+export type NewApplication = typeof applications.$inferInsert;
+export type ApplicationStage = (typeof applicationStage.enumValues)[number];
+export type Student = typeof students.$inferSelect;
+export type FeeCharge = typeof feeCharges.$inferSelect;
+export type Payment = typeof payments.$inferSelect;
+export type PaymentMethod = (typeof paymentMethod.enumValues)[number];

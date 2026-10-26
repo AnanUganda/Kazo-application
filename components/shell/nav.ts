@@ -11,7 +11,7 @@ export type NavItem = {
 const NAV: Record<StaffRole, NavItem[]> = {
   admin: [
     { label: "Home", href: "/admin", icon: "home", implemented: true },
-    { label: "Applications", href: "/admin/applications", icon: "applications", implemented: false },
+    { label: "Applications", href: "/admin/applications", icon: "applications", implemented: true },
     { label: "Students", href: "/admin/students", icon: "students", implemented: false },
     { label: "Lessons", href: "/admin/lessons", icon: "lessons", implemented: false },
     { label: "Syllabus", href: "/admin/syllabus", icon: "syllabus", implemented: false },
