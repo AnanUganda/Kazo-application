@@ -33,6 +33,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { StatCard, type StatBadgeVariant } from "@/components/stat-card";
 import { AdminAppsChart } from "./AdminAppsChart";
 
 export const dynamic = "force-dynamic";
@@ -46,8 +47,6 @@ const STAGES: { key: ApplicationStage; label: string }[] = [
   { key: "not_accepted", label: "Not accepted" },
   { key: "withdrew", label: "Withdrew" },
 ];
-
-type BadgeVariant = "success" | "warning" | "destructive";
 
 export default async function AdminHome() {
   const admin = await requireRole("admin");
@@ -186,7 +185,7 @@ export default async function AdminHome() {
     return { week: `W${idx + 1}`, count };
   });
 
-  const syllabusVariant: BadgeVariant =
+  const syllabusVariant: StatBadgeVariant =
     syllabusTone === "green"
       ? "success"
       : syllabusTone === "amber"
@@ -600,44 +599,3 @@ export default async function AdminHome() {
   );
 }
 
-function StatCard({
-  href,
-  label,
-  icon: Icon,
-  value,
-  hint,
-  badge,
-  valueClassName,
-}: {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  value: string;
-  hint: string;
-  badge?: { variant: BadgeVariant; label: string };
-  valueClassName?: string;
-}) {
-  return (
-    <Link href={href} className="group rounded-xl">
-      <Card className="h-full transition group-hover:border-primary">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {label}
-          </CardTitle>
-          <Icon className="size-5 shrink-0 text-muted-foreground" aria-hidden />
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className={`text-2xl font-bold tabular-nums ${valueClassName ?? ""}`}>
-              {value}
-            </p>
-            {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground group-hover:text-primary">
-            {hint} →
-          </p>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}

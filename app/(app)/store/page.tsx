@@ -1,10 +1,20 @@
 import Link from "next/link";
 import { desc, isNull } from "drizzle-orm";
+import { ArrowLeftRight, Package, Wrench } from "lucide-react";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
 import { stockMovements } from "@/lib/db/schema";
 import { formatDate } from "@/lib/format";
 import { loadConsumables, loadEquipmentRegister } from "@/lib/inventory-data";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/stat-card";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Store Home — Kazo Technical School" };
@@ -28,10 +38,8 @@ export default async function StoreHome() {
     consumablesList.map((c) => [c.consumable.id, c.consumable]),
   );
 
-  // 1. Low-stock items
   const lowStockItems = consumablesList.filter((c) => c.lowStock);
 
-  // 2. Open faults newest first (both equipment_faults and unlinked lesson machine issues)
   const openEquipmentFaults = equipmentData.equipmentList.flatMap(
     ({ item, faults }) =>
       faults
@@ -70,282 +78,254 @@ export default async function StoreHome() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
             Store Keeper Workspace · Workshop &amp; Consumables
           </p>
-          <h1 className="mt-1 text-xl font-bold text-neutral-900">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight">
             Welcome, {storeKeeper.fullName}
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Low-stock consumables, open machine faults, and the latest stock
             movements. Every number opens its filtered list.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Link href="/store/consumables" className="btn-primary py-2">
-            Consumables &amp; stock
-          </Link>
-          <Link href="/store/equipment" className="btn-secondary py-2">
-            Equipment &amp; faults
-          </Link>
+          <Button asChild>
+            <Link href="/store/consumables">Consumables &amp; stock</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/store/equipment">Equipment &amp; faults</Link>
+          </Button>
         </div>
       </header>
 
-      {/* Top 3 KPI cards */}
+      {/* KPI cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Link
+        <StatCard
           href="/store/consumables?filter=low"
-          className="card group block transition hover:border-brand"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-              Low-Stock Items
-            </span>
-            {lowStockItems.length > 0 && (
-              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                Reorder needed
-              </span>
-            )}
-          </div>
-          <p className="mt-3 text-2xl font-bold text-amber-700">
-            {lowStockItems.length}
-          </p>
-          <p className="mt-1 text-xs text-neutral-500 group-hover:text-brand">
-            Out of {consumablesList.length} consumable lines →
-          </p>
-        </Link>
-
-        <Link
+          label="Low-stock items"
+          icon={Package}
+          value={String(lowStockItems.length)}
+          valueClassName="text-amber-700"
+          hint={`Out of ${consumablesList.length} consumable lines`}
+          badge={
+            lowStockItems.length > 0
+              ? { variant: "warning", label: "Reorder needed" }
+              : undefined
+          }
+        />
+        <StatCard
           href="/store/equipment?filter=broken"
-          className="card group block transition hover:border-brand"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-              Open Equipment Faults
-            </span>
-            {openFaultsNewestFirst.length > 0 && (
-              <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">
-                Needs repair
-              </span>
-            )}
-          </div>
-          <p className="mt-3 text-2xl font-bold text-red-700">
-            {openFaultsNewestFirst.length}
-          </p>
-          <p className="mt-1 text-xs text-neutral-500 group-hover:text-brand">
-            Open broken &amp; faulted machines →
-          </p>
-        </Link>
-
-        <Link
+          label="Open equipment faults"
+          icon={Wrench}
+          value={String(openFaultsNewestFirst.length)}
+          valueClassName="text-red-700"
+          hint="Open broken & faulted machines"
+          badge={
+            openFaultsNewestFirst.length > 0
+              ? { variant: "destructive", label: "Needs repair" }
+              : undefined
+          }
+        />
+        <StatCard
           href="/store/consumables"
-          className="card group block transition hover:border-brand"
-        >
-          <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            Latest Movements
-          </span>
-          <p className="mt-3 text-2xl font-bold text-neutral-900">
-            {recentMovements.length}
-          </p>
-          <p className="mt-1 text-xs text-neutral-500 group-hover:text-brand">
-            Record stock in, stock out, or physical count →
-          </p>
-        </Link>
+          label="Latest movements"
+          icon={ArrowLeftRight}
+          value={String(recentMovements.length)}
+          hint="Record stock in, stock out, or a count"
+        />
       </div>
 
-      {/* Main 2-column panels */}
+      {/* Two-column panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Low-stock items */}
-        <section className="card space-y-4">
-          <div className="flex items-center justify-between gap-2">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
-              <h2 className="text-base font-semibold text-neutral-900">
-                Low-Stock Items ({lowStockItems.length})
-              </h2>
-              <p className="text-xs text-neutral-500">
-                Consumables where computed stock is at or below reorder level.
-              </p>
+              <CardTitle>Low-stock items ({lowStockItems.length})</CardTitle>
+              <CardDescription>
+                Computed stock at or below the reorder level.
+              </CardDescription>
             </div>
             <Link
               href="/store/consumables?filter=low"
-              className="text-xs font-semibold text-brand hover:underline"
+              className="shrink-0 text-xs font-semibold text-primary hover:underline"
             >
               Filter low stock →
             </Link>
-          </div>
-
-          {lowStockItems.length === 0 ? (
-            <p className="text-sm text-neutral-500">
-              All consumables are stocked above their reorder threshold.
-            </p>
-          ) : (
-            <ul className="divide-y divide-neutral-100 text-sm">
-              {lowStockItems.map(({ consumable, stockLevel }) => (
-                <li
-                  key={consumable.id}
-                  className="flex items-center justify-between gap-3 py-2.5"
-                >
-                  <div>
-                    <Link
-                      href="/store/consumables?filter=low"
-                      className="font-medium text-neutral-900 hover:text-brand hover:underline"
-                    >
-                      {consumable.name}
-                    </Link>
-                    <div className="text-xs text-neutral-500">
-                      Category: {consumable.category} · Reorder level:{" "}
-                      {consumable.reorderLevel} {consumable.unit}
-                    </div>
-                  </div>
-                  <Link
-                    href="/store/consumables?filter=low"
-                    className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800"
-                  >
-                    {stockLevel} {consumable.unit}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        {/* Open faults newest first */}
-        <section className="card space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base font-semibold text-neutral-900">
-                Open Faults — Newest First ({openFaultsNewestFirst.length})
-              </h2>
-              <p className="text-xs text-neutral-500">
-                Includes faults reported directly and machine issues logged in
-                lessons.
+          </CardHeader>
+          <CardContent>
+            {lowStockItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                All consumables are above their reorder threshold.
               </p>
+            ) : (
+              <ul className="divide-y text-sm">
+                {lowStockItems.map(({ consumable, stockLevel }) => (
+                  <li
+                    key={consumable.id}
+                    className="flex items-center justify-between gap-3 py-2.5"
+                  >
+                    <div>
+                      <Link
+                        href="/store/consumables?filter=low"
+                        className="font-medium hover:text-primary hover:underline"
+                      >
+                        {consumable.name}
+                      </Link>
+                      <div className="text-xs text-muted-foreground">
+                        {consumable.category} · reorder ≤ {consumable.reorderLevel}{" "}
+                        {consumable.unit}
+                      </div>
+                    </div>
+                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                      {stockLevel} {consumable.unit}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Open faults */}
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+            <div>
+              <CardTitle>
+                Open faults — newest first ({openFaultsNewestFirst.length})
+              </CardTitle>
+              <CardDescription>
+                Faults reported directly and machine issues from lesson logs.
+              </CardDescription>
             </div>
             <Link
               href="/store/equipment?filter=broken"
-              className="text-xs font-semibold text-brand hover:underline"
+              className="shrink-0 text-xs font-semibold text-primary hover:underline"
             >
               Resolve faults →
             </Link>
-          </div>
-
-          {openFaultsNewestFirst.length === 0 ? (
-            <p className="text-sm text-neutral-500">
-              No open equipment faults.
-            </p>
-          ) : (
-            <ul className="divide-y divide-neutral-100 text-sm">
-              {openFaultsNewestFirst.map((f) => (
-                <li key={f.id} className="space-y-1 py-2.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <Link
-                      href="/store/equipment?filter=broken"
-                      className="font-medium text-neutral-900 hover:text-brand hover:underline"
-                    >
-                      {f.assetLabel}
-                      {f.booth ? ` (${f.booth})` : ""}
-                    </Link>
-                    <span className="text-xs text-neutral-500">
-                      {formatDate(f.date)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-neutral-700">{f.problem}</p>
-                  <p className="text-[11px] text-neutral-500">
-                    Reported by {f.reportedBy}
-                    {f.fromLessonLog ? " · From lesson log" : ""}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          </CardHeader>
+          <CardContent>
+            {openFaultsNewestFirst.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No open equipment faults.
+              </p>
+            ) : (
+              <ul className="divide-y text-sm">
+                {openFaultsNewestFirst.map((f) => (
+                  <li key={f.id} className="space-y-1 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        href="/store/equipment?filter=broken"
+                        className="font-medium hover:text-primary hover:underline"
+                      >
+                        {f.assetLabel}
+                        {f.booth ? ` (${f.booth})` : ""}
+                      </Link>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(f.date)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-foreground/80">{f.problem}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Reported by {f.reportedBy}
+                      {f.fromLessonLog ? " · From lesson log" : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Latest stock movements */}
-      <section className="card space-y-4">
-        <div className="flex items-center justify-between gap-2">
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
           <div>
-            <h2 className="text-base font-semibold text-neutral-900">
-              Latest Stock Movements
-            </h2>
-            <p className="text-xs text-neutral-500">
-              Append-only movement ledger (stock in, stock out, and physical
-              count adjustments).
-            </p>
+            <CardTitle>Latest stock movements</CardTitle>
+            <CardDescription>
+              Append-only ledger (stock in, stock out, count adjustments).
+            </CardDescription>
           </div>
           <Link
             href="/store/consumables"
-            className="text-xs font-semibold text-brand hover:underline"
+            className="shrink-0 text-xs font-semibold text-primary hover:underline"
           >
             All consumables →
           </Link>
-        </div>
-
-        {recentMovements.length === 0 ? (
-          <p className="text-sm text-neutral-500">
-            No stock movements recorded yet.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-neutral-200 text-xs uppercase text-neutral-500">
-                <tr>
-                  <th className="py-2 pr-3">Date</th>
-                  <th className="py-2 pr-3">Consumable</th>
-                  <th className="py-2 pr-3">Type</th>
-                  <th className="py-2 pr-3">Quantity Delta</th>
-                  <th className="py-2 pr-3">Details</th>
-                  <th className="py-2">Who</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {recentMovements.map((m) => {
-                  const item = consumableById.get(m.consumableId);
-                  const sign = m.quantityDelta > 0 ? `+${m.quantityDelta}` : `${m.quantityDelta}`;
-                  const badgeClass =
-                    m.type === "in"
-                      ? "bg-emerald-50 text-emerald-700"
-                      : m.type === "out"
-                        ? "bg-amber-50 text-amber-800"
-                        : "bg-neutral-100 text-neutral-700";
-                  return (
-                    <tr key={m.id}>
-                      <td className="py-2 pr-3 text-xs text-neutral-600">
-                        {formatDate(m.date)}
-                      </td>
-                      <td className="py-2 pr-3 font-medium text-neutral-900">
-                        {item?.name ?? "Consumable"}
-                      </td>
-                      <td className="py-2 pr-3">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase ${badgeClass}`}
-                        >
-                          {m.type}
-                        </span>
-                      </td>
-                      <td className="py-2 pr-3 font-mono text-xs font-semibold">
-                        {sign} {item?.unit ?? ""}
-                      </td>
-                      <td className="py-2 pr-3 text-xs text-neutral-500">
-                        {m.type === "in"
-                          ? m.supplier
-                            ? `Supplier: ${m.supplier}`
-                            : "Stock received"
-                          : m.type === "out"
-                            ? `Purpose: ${m.purpose?.replace("_", " ") ?? "practice"}`
-                            : `Adjustment (${m.adjustmentReason ?? "count"})`}
-                      </td>
-                      <td className="py-2 text-xs text-neutral-500">
-                        {m.receivedBy || m.takenBy || "Store keeper"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+        </CardHeader>
+        <CardContent>
+          {recentMovements.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No stock movements recorded yet.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="py-2 pr-3">Date</th>
+                    <th className="py-2 pr-3">Consumable</th>
+                    <th className="py-2 pr-3">Type</th>
+                    <th className="py-2 pr-3">Δ Qty</th>
+                    <th className="py-2 pr-3">Details</th>
+                    <th className="py-2">Who</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {recentMovements.map((m) => {
+                    const item = consumableById.get(m.consumableId);
+                    const sign =
+                      m.quantityDelta > 0
+                        ? `+${m.quantityDelta}`
+                        : `${m.quantityDelta}`;
+                    const badgeClass =
+                      m.type === "in"
+                        ? "bg-green-100 text-green-800"
+                        : m.type === "out"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-muted text-muted-foreground";
+                    return (
+                      <tr key={m.id}>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">
+                          {formatDate(m.date)}
+                        </td>
+                        <td className="py-2 pr-3 font-medium">
+                          {item?.name ?? "Consumable"}
+                        </td>
+                        <td className="py-2 pr-3">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase ${badgeClass}`}
+                          >
+                            {m.type}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3 font-mono text-xs font-semibold">
+                          {sign} {item?.unit ?? ""}
+                        </td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">
+                          {m.type === "in"
+                            ? m.supplier
+                              ? `Supplier: ${m.supplier}`
+                              : "Stock received"
+                            : m.type === "out"
+                              ? `Purpose: ${m.purpose?.replace("_", " ") ?? "practice"}`
+                              : `Adjustment (${m.adjustmentReason ?? "count"})`}
+                        </td>
+                        <td className="py-2 text-xs text-muted-foreground">
+                          {m.receivedBy || m.takenBy || "Store keeper"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
