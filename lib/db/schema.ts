@@ -1,10 +1,14 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
+  date,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -82,3 +86,66 @@ export const activityLog = pgTable("activity_log", {
 export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;
 export type StaffRole = (typeof staffRole.enumValues)[number];
+
+/* ------------------------------------------------------------------ *
+ * Phase 2: settings, fee catalogue, and intakes.
+ * ------------------------------------------------------------------ */
+
+/**
+ * Single-row global settings. The row id is always 'global'. Fee amounts live
+ * in fee_types; reorder levels and the syllabus plan arrive in their phases.
+ */
+export const appSettings = pgTable("app_settings", {
+  id: text("id").primaryKey().default("global"),
+  attendanceThreshold: integer("attendance_threshold").notNull().default(85),
+  ...auditColumns(),
+});
+
+/**
+ * Editable fee catalogue. `default_amount` is the amount charged to new
+ * students (integer UGX). `applies_to_semester` is null (registration / any),
+ * 1, or 2. Codes are stable identifiers; amounts are edited in Settings.
+ */
+export const feeTypes = pgTable("fee_types", {
+  code: text("code").primaryKey(),
+  name: text("name").notNull(),
+  defaultAmount: integer("default_amount").notNull(),
+  appliesToSemester: integer("applies_to_semester"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  ...auditColumns(),
+});
+
+export const intakeStatus = pgEnum("intake_status", ["active", "archived"]);
+
+/**
+ * Intakes. At most ONE may be active at a time (enforced by a partial unique
+ * index). Closing an intake sets status = 'archived' and stamps archived_at/by;
+ * its students and syllabus progress then become read-only (enforced in the
+ * phases that own those tables).
+ */
+export const intakes = pgTable(
+  "intakes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    status: intakeStatus("status").notNull().default("active"),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    semester1Start: date("semester1_start").notNull(),
+    semester1End: date("semester1_end").notNull(),
+    semester2Start: date("semester2_start").notNull(),
+    semester2End: date("semester2_end").notNull(),
+    ...auditColumns(),
+  },
+  (t) => [
+    uniqueIndex("uniq_one_active_intake")
+      .on(t.status)
+      .where(sql`${t.status} = 'active'`),
+  ],
+);
+
+export type AppSettings = typeof appSettings.$inferSelect;
+export type FeeType = typeof feeTypes.$inferSelect;
+export type Intake = typeof intakes.$inferSelect;
+export type NewIntake = typeof intakes.$inferInsert;
+export type IntakeStatus = (typeof intakeStatus.enumValues)[number];

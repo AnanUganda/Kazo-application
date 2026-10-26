@@ -17,8 +17,9 @@ const NAV: Record<StaffRole, NavItem[]> = {
     { label: "Syllabus", href: "/admin/syllabus", icon: "syllabus", implemented: false },
     { label: "Inventory", href: "/admin/inventory", icon: "inventory", implemented: false },
     { label: "Equipment", href: "/admin/equipment", icon: "equipment", implemented: false },
+    { label: "Intakes", href: "/admin/intakes", icon: "syllabus", implemented: true },
     { label: "Staff", href: "/admin/staff", icon: "staff", implemented: true },
-    { label: "Settings", href: "/admin/settings", icon: "settings", implemented: false },
+    { label: "Settings", href: "/admin/settings", icon: "settings", implemented: true },
   ],
   teacher: [
     { label: "Home", href: "/teacher", icon: "home", implemented: true },
