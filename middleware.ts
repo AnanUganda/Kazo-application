@@ -7,6 +7,11 @@ import { createServerClient } from "@supabase/ssr";
  * requireStaff / requireRole.
  */
 export async function middleware(request: NextRequest) {
+  // Preview mode bypasses Supabase entirely.
+  if (process.env.PREVIEW_MODE === "1") {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

@@ -5,19 +5,50 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StaffRole } from "@/lib/db/schema";
 import { signOut } from "@/lib/auth/actions";
+import { setPreviewRole } from "@/lib/preview-actions";
 import { navForRole, roleLabel } from "./nav";
 import { Icon } from "./icons";
 import { Logo } from "./Logo";
+
+function PreviewBanner({ role }: { role: StaffRole }) {
+  const roles: StaffRole[] = ["admin", "teacher", "store_keeper"];
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+      <span className="font-semibold">Preview mode</span>
+      <span>· sample data, no sign-in · viewing as {roleLabel[role]}</span>
+      <span className="ml-auto flex items-center gap-1">
+        Switch:
+        {roles.map((r) => (
+          <form key={r} action={setPreviewRole} className="inline">
+            <input type="hidden" name="role" value={r} />
+            <button
+              type="submit"
+              className={`rounded px-2 py-0.5 font-medium ${
+                r === role
+                  ? "bg-amber-200 text-amber-900"
+                  : "hover:bg-amber-100"
+              }`}
+            >
+              {roleLabel[r]}
+            </button>
+          </form>
+        ))}
+      </span>
+    </div>
+  );
+}
 
 export function AppShell({
   role,
   name,
   email,
+  preview = false,
   children,
 }: {
   role: StaffRole;
   name: string;
   email: string;
+  preview?: boolean;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -141,6 +172,7 @@ export function AppShell({
 
       {/* Content */}
       <div className="md:pl-64">
+        {preview && <PreviewBanner role={role} />}
         <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
           {children}
         </main>
