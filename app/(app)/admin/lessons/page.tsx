@@ -9,7 +9,7 @@ import {
   syllabusTopics,
 } from "@/lib/db/schema";
 import { getActiveIntake } from "@/lib/intake";
-import { formatDate } from "@/lib/format";
+import { daysSince, formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Lessons — Kazo Technical School" };
@@ -17,10 +17,10 @@ export const metadata = { title: "Lessons — Kazo Technical School" };
 export default async function AdminLessonsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ teacher?: string; topic?: string }>;
+  searchParams: Promise<{ teacher?: string; topic?: string; week?: string }>;
 }) {
   await requireRole("admin");
-  const { teacher = "", topic = "" } = await searchParams;
+  const { teacher = "", topic = "", week = "" } = await searchParams;
   const db = getDb();
   const intake = await getActiveIntake();
 
@@ -53,7 +53,7 @@ export default async function AdminLessonsPage({
     );
   }
 
-  const logs = await db
+  const allLogs = await db
     .select({
       id: lessonLogs.id,
       date: lessonLogs.date,
@@ -67,13 +67,27 @@ export default async function AdminLessonsPage({
     .orderBy(desc(lessonLogs.date), desc(lessonLogs.createdAt))
     .limit(100);
 
+  const logs =
+    week === "current"
+      ? allLogs.filter((l) => daysSince(l.date) <= 7)
+      : allLogs;
+
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-bold text-neutral-900">Lessons</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Every lesson log. You can edit any log.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900">Lessons</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Every lesson log. You can edit any log.
+          </p>
+        </div>
+        <a
+          href="/admin/export/lessons"
+          download
+          className="btn-secondary py-2"
+        >
+          Export CSV
+        </a>
       </header>
 
       <form method="get" className="flex flex-wrap items-end gap-3">
@@ -93,6 +107,13 @@ export default async function AdminLessonsPage({
             {topics.map((t) => (
               <option key={t.id} value={t.id}>{t.title}</option>
             ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="week" className="field-label">Period</label>
+          <select id="week" name="week" defaultValue={week} className="field-input">
+            <option value="">All time</option>
+            <option value="current">This week (last 7 days)</option>
           </select>
         </div>
         <button type="submit" className="btn-primary">Filter</button>

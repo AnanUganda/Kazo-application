@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { desc } from "drizzle-orm";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
@@ -18,12 +19,20 @@ export default async function StaffPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-bold text-neutral-900">Staff</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Create accounts, assign roles, and deactivate staff. Deactivated staff
-          keep their record but cannot use the dashboard.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900">Staff</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Create accounts, assign roles, and deactivate staff. Deactivated staff
+            keep their record but cannot use the dashboard.
+          </p>
+        </div>
+        <Link
+          href="/admin/export/staff"
+          className="rounded border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-xs font-medium hover:bg-[color:var(--color-surface-muted)]"
+        >
+          Export CSV
+        </Link>
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

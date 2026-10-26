@@ -54,10 +54,10 @@ function ApplicationCard({ app }: { app: Application }) {
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; stage?: string }>;
+  searchParams: Promise<{ q?: string; stage?: string; stuck?: string }>;
 }) {
   await requireRole("admin");
-  const { q = "", stage = "" } = await searchParams;
+  const { q = "", stage = "", stuck = "" } = await searchParams;
 
   const filters = [isNull(applications.archivedAt)];
   const query = q.trim();
@@ -76,11 +76,16 @@ export default async function ApplicationsPage({
     filters.push(eq(applications.stage, stage as ApplicationStage));
   }
 
-  const rows = await getDb()
+  const allRows = await getDb()
     .select()
     .from(applications)
     .where(and(...filters))
     .orderBy(desc(applications.createdAt));
+
+  const rows =
+    stuck === "1"
+      ? allRows.filter((r) => daysSince(r.stageEnteredAt) >= 14)
+      : allRows;
 
   const byStage = (s: ApplicationStage) => rows.filter((r) => r.stage === s);
   const exits = rows.filter(
@@ -97,6 +102,13 @@ export default async function ApplicationsPage({
             when moving to Registered.
           </p>
         </div>
+        <a
+          href="/admin/export/applications"
+          download
+          className="btn-secondary py-2"
+        >
+          Export CSV
+        </a>
       </header>
 
       {/* Search & filter */}
@@ -129,6 +141,20 @@ export default async function ApplicationsPage({
                 {label}
               </option>
             ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="stuck" className="field-label">
+            Duration
+          </label>
+          <select
+            id="stuck"
+            name="stuck"
+            defaultValue={stuck}
+            className="field-input"
+          >
+            <option value="">Any duration</option>
+            <option value="1">Stuck 14+ days only</option>
           </select>
         </div>
         <button type="submit" className="btn-primary">

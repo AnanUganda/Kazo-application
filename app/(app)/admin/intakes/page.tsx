@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { desc } from "drizzle-orm";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
@@ -40,12 +41,20 @@ export default async function IntakesPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-bold text-neutral-900">Intakes</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Only one intake is active at a time. Closing an intake archives it and
-          its records become read-only.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900">Intakes</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Only one intake is active at a time. Closing an intake archives it and
+            its records become read-only.
+          </p>
+        </div>
+        <Link
+          href="/admin/export/intakes"
+          className="rounded border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-xs font-medium hover:bg-[color:var(--color-surface-muted)]"
+        >
+          Export CSV
+        </Link>
       </header>
 
       {/* Active intake */}

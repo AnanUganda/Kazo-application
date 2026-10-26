@@ -6,7 +6,12 @@ import { getActiveIntake } from "@/lib/intake";
 import { loadSyllabus } from "@/lib/syllabus-data";
 import { SyllabusTimeline } from "@/components/syllabus/SyllabusTimeline";
 import { AddTopicForm } from "./AddTopicForm";
-import { updateTopic, archiveTopic, copyFromIntake } from "./actions";
+import {
+  updateTopic,
+  archiveTopic,
+  copyFromIntake,
+  loadDefaultKtsSyllabus,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Syllabus — Kazo Technical School" };
@@ -92,12 +97,29 @@ export default async function SyllabusPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Plan for <span className="font-medium">{intake.name}</span>. Track
-          status: 0–1 overdue green, 2 amber, 3+ red.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Plan for <span className="font-medium">{intake.name}</span> (2
+            semesters · 13 weeks per semester · 18 KTS modules). Track status:
+            0–1 overdue green, 2 amber, 3+ red.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <form action={loadDefaultKtsSyllabus}>
+            <button type="submit" className="btn-secondary py-2">
+              Load KTS 18-module syllabus
+            </button>
+          </form>
+          <a
+            href="/admin/export/syllabus"
+            download
+            className="btn-secondary py-2"
+          >
+            Export CSV
+          </a>
+        </div>
       </header>
 
       {topics.length === 0 && archivedIntakes.length > 0 && (

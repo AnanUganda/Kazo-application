@@ -18,6 +18,7 @@ export default async function AdminInventoryPage({
     <ConsumablesView
       items={items}
       actorName={admin.fullName}
+      isAdmin
       q={q}
       category={category}
       filter={filter}

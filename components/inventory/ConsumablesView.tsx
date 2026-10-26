@@ -45,12 +45,14 @@ const REASON_LABEL: Record<StockAdjustmentReason, string> = {
 export function ConsumablesView({
   items,
   actorName,
+  isAdmin = false,
   q = "",
   category = "",
   filter = "",
 }: {
   items: ConsumableWithStock[];
   actorName: string;
+  isAdmin?: boolean;
   q?: string;
   category?: string;
   filter?: string;
@@ -79,12 +81,32 @@ export function ConsumablesView({
             physical count adjustments) — never edited directly.
           </p>
         </div>
-        {lowStockTotal > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
-            <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
-            {lowStockTotal} low-stock item{lowStockTotal === 1 ? "" : "s"}
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {lowStockTotal > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+              <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
+              {lowStockTotal} low-stock item{lowStockTotal === 1 ? "" : "s"}
+            </span>
+          )}
+          {isAdmin && (
+            <>
+              <a
+                href="/admin/export/consumables"
+                download
+                className="btn-secondary py-2"
+              >
+                Export stock CSV
+              </a>
+              <a
+                href="/admin/export/stock-movements"
+                download
+                className="btn-secondary py-2"
+              >
+                Export movements CSV
+              </a>
+            </>
+          )}
+        </div>
       </header>
 
       {/* Search & filter bar */}

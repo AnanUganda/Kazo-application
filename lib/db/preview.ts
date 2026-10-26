@@ -3,6 +3,7 @@ import { drizzle, type PgliteDatabase } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import * as schema from "./schema";
 import { DEFAULT_FEE_TYPES } from "@/lib/fees";
+import { KTS_SYLLABUS_MODULES } from "@/lib/syllabus-defaults";
 import { PREVIEW_IDS } from "@/lib/preview";
 
 type PreviewDb = PgliteDatabase<typeof schema>;
@@ -28,9 +29,9 @@ async function seed(db: PreviewDb) {
   const ts = (offset: number) => new Date(now + offset * day);
 
   await db.insert(schema.staff).values([
-    { id: PREVIEW_IDS.admin, email: "admin@preview.local", fullName: "Aisha N. (Admin)", role: "admin" },
-    { id: PREVIEW_IDS.teacher, email: "teacher@preview.local", fullName: "John Okello (Teacher)", role: "teacher" },
-    { id: PREVIEW_IDS.store_keeper, email: "store@preview.local", fullName: "Mary Atim (Store)", role: "store_keeper" },
+    { id: PREVIEW_IDS.admin, email: "admin@preview.local", fullName: "Tumuhairwe Timothy Kirabo (Principal)", role: "admin" },
+    { id: PREVIEW_IDS.teacher, email: "teacher@preview.local", fullName: "Opio Joel (Instructor)", role: "teacher" },
+    { id: PREVIEW_IDS.store_keeper, email: "store@preview.local", fullName: "Musasizi Tonny (Store / Asst. Instructor)", role: "store_keeper" },
   ]);
 
   await db.insert(schema.appSettings).values({ id: "global", attendanceThreshold: 85 });
@@ -44,38 +45,34 @@ async function seed(db: PreviewDb) {
     })),
   );
 
+  // KTS syllabus: 2 semesters x 13 weeks (91 days per semester).
   const [intake] = await db
     .insert(schema.intakes)
     .values({
       name: "2026 Intake",
       status: "active",
-      startDate: iso(-60),
-      endDate: iso(300),
-      semester1Start: iso(-55),
-      semester1End: iso(35),
-      semester2Start: iso(40),
-      semester2End: iso(130),
+      startDate: iso(-50),
+      endDate: iso(140),
+      semester1Start: iso(-49), // Currently in Week 8 of 13 in Semester 1
+      semester1End: iso(42),
+      semester2Start: iso(49),
+      semester2End: iso(140),
     })
     .returning();
 
-  const topicDefs: {
-    semester: number;
-    title: string;
-    type: "theory" | "practical";
-    targetWeek: number;
-  }[] = [
-    { semester: 1, title: "Workshop safety & PPE", type: "theory", targetWeek: 1 },
-    { semester: 1, title: "Striking an arc", type: "practical", targetWeek: 2 },
-    { semester: 1, title: "Running beads", type: "practical", targetWeek: 4 },
-    { semester: 1, title: "Joint types & fit-up", type: "theory", targetWeek: 6 },
-    { semester: 1, title: "Fillet welds", type: "practical", targetWeek: 10 },
-    { semester: 1, title: "Weld inspection basics", type: "theory", targetWeek: 12 },
-    { semester: 2, title: "Reading engineering drawings", type: "theory", targetWeek: 2 },
-    { semester: 2, title: "Sheet-metal fabrication", type: "practical", targetWeek: 5 },
-  ];
   const topics = await db
     .insert(schema.syllabusTopics)
-    .values(topicDefs.map((t, i) => ({ ...t, intakeId: intake.id, sortOrder: i })))
+    .values(
+      KTS_SYLLABUS_MODULES.map((m) => ({
+        intakeId: intake.id,
+        semester: m.semester,
+        title: m.title,
+        type: m.type,
+        targetWeek: m.targetWeek,
+        description: m.description,
+        sortOrder: m.moduleNumber,
+      })),
+    )
     .returning();
 
   const studentDefs: {
@@ -294,22 +291,27 @@ async function seed(db: PreviewDb) {
     .insert(schema.feeCharges)
     .values({ studentId: david.id, feeTypeCode: "semester_1", amountDue: 800_000, semester: 1 });
 
-  // Lesson logs by the teacher.
+  // Lesson logs by the teacher (Modules 1-4 completed, Module 5 started, Module 6 due this week).
   const [log1] = await db
     .insert(schema.lessonLogs)
-    .values({ intakeId: intake.id, teacherId: PREVIEW_IDS.teacher, date: iso(-28), session: "morning", notes: "Safety induction completed.", createdBy: PREVIEW_IDS.teacher })
+    .values({ intakeId: intake.id, teacherId: PREVIEW_IDS.teacher, date: iso(-28), session: "morning", notes: "Safety in Welding & SMAW fundamentals completed.", createdBy: PREVIEW_IDS.teacher })
     .returning();
   await db.insert(schema.lessonTopicProgress).values([
     { lessonLogId: log1.id, topicId: topics[0].id, status: "completed" },
     { lessonLogId: log1.id, topicId: topics[1].id, status: "completed" },
+    { lessonLogId: log1.id, topicId: topics[2].id, status: "completed" },
+    { lessonLogId: log1.id, topicId: topics[3].id, status: "completed" },
   ]);
   await db.insert(schema.lessonAbsences).values({ lessonLogId: log1.id, studentId: studs[2].id });
 
   const [log2] = await db
     .insert(schema.lessonLogs)
-    .values({ intakeId: intake.id, teacherId: PREVIEW_IDS.teacher, date: iso(-7), session: "afternoon", notes: "Bead practice; a machine was faulty.", createdBy: PREVIEW_IDS.teacher })
+    .values({ intakeId: intake.id, teacherId: PREVIEW_IDS.teacher, date: iso(-1), session: "afternoon", notes: "Hand tools & Oxy-Fuel setup; KTS-WM-03 power issue.", createdBy: PREVIEW_IDS.teacher })
     .returning();
-  await db.insert(schema.lessonTopicProgress).values({ lessonLogId: log2.id, topicId: topics[2].id, status: "started" });
+  await db.insert(schema.lessonTopicProgress).values([
+    { lessonLogId: log2.id, topicId: topics[4].id, status: "started" },
+    { lessonLogId: log2.id, topicId: topics[5].id, status: "started" },
+  ]);
   await db.insert(schema.lessonAbsences).values({ lessonLogId: log2.id, studentId: studs[3].id });
   const [machineIssue] = await db
     .insert(schema.lessonIssues)

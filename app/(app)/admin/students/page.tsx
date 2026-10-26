@@ -9,10 +9,10 @@ export const metadata = { title: "Students — Kazo Technical School" };
 export default async function AdminStudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; filter?: string }>;
 }) {
   await requireRole("admin");
-  const { q = "", status = "" } = await searchParams;
+  const { q = "", status = "", filter = "" } = await searchParams;
   const intake = await getActiveIntake();
 
   if (!intake) {
@@ -40,6 +40,7 @@ export default async function AdminStudentsPage({
       showFees
       q={q}
       status={status}
+      filter={filter}
     />
   );
 }

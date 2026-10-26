@@ -8,6 +8,7 @@ import { getDb } from "@/lib/db";
 import { syllabusTopics } from "@/lib/db/schema";
 import { getActiveIntake } from "@/lib/intake";
 import { logActivity } from "@/lib/activity";
+import { KTS_SYLLABUS_MODULES } from "@/lib/syllabus-defaults";
 
 export type TopicState = {
   ok: boolean;
@@ -176,4 +177,55 @@ export async function copyFromIntake(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/syllabus");
+}
+
+/** Load the official 18-module Kazo Technical School syllabus (2 semesters x 13 weeks). */
+export async function loadDefaultKtsSyllabus(): Promise<void> {
+  const admin = await requireRole("admin");
+  const intake = await getActiveIntake();
+  if (!intake) return;
+
+  const db = getDb();
+  const existing = await db
+    .select({ title: syllabusTopics.title })
+    .from(syllabusTopics)
+    .where(
+      and(
+        eq(syllabusTopics.intakeId, intake.id),
+        isNull(syllabusTopics.archivedAt),
+      ),
+    );
+  const existingTitles = new Set(existing.map((e) => e.title.toLowerCase()));
+
+  const toInsert = KTS_SYLLABUS_MODULES.filter(
+    (m) => !existingTitles.has(m.title.toLowerCase()),
+  );
+  if (toInsert.length === 0) return;
+
+  await db.insert(syllabusTopics).values(
+    toInsert.map((m) => ({
+      intakeId: intake.id,
+      semester: m.semester,
+      title: m.title,
+      type: m.type,
+      targetWeek: m.targetWeek,
+      description: m.description,
+      sortOrder: m.moduleNumber,
+      createdBy: admin.id,
+      updatedBy: admin.id,
+    })),
+  );
+
+  await logActivity({
+    actorId: admin.id,
+    action: "syllabus.load_kts_defaults",
+    entityType: "intake",
+    entityId: intake.id,
+    details: { modulesLoaded: toInsert.length },
+  });
+
+  revalidatePath("/admin/syllabus");
+  revalidatePath("/teacher/syllabus");
+  revalidatePath("/admin");
+  revalidatePath("/teacher");
 }

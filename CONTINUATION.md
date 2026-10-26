@@ -1,7 +1,7 @@
 # Kazo Technical School — Staff Dashboard · Continuation Brief
 
 > Handoff document so any developer or AI coding agent can continue this build.
-> Last updated after **Phase 6** + preview harness. Read this top-to-bottom
+> Last updated after **Phase 7** + KTS 18-module syllabus (`kts syllabus.docx`) + preview harness. Read this top-to-bottom
 > before writing code.
 
 ---
@@ -9,8 +9,8 @@
 ## 0. How to use this document
 
 This project is being built in **strict phases (0–8), one at a time**, each on
-its own branch, with a stop-and-report after every phase. Phases 0–6 are done.
-**Next up is Phase 7.** Follow the process and conventions below exactly — they
+its own branch, with a stop-and-report after every phase. Phases 0–7 are done.
+**Next up is Phase 8.** Follow the process and conventions below exactly — they
 are locked decisions, not suggestions.
 
 ---
@@ -46,8 +46,8 @@ are locked decisions, not suggestions.
 | — | **Preview harness** (in-memory pglite + sample data, no sign-in) | ✅ built (dev-only) |
 | 5 | Students, fees, attendance | ✅ built |
 | 6 | Inventory (consumables + equipment + faults) | ✅ built |
-| 7 | Home summaries + CSV exports | ⬜ **next** |
-| 8 | Hardening + README + HANDOVER.md | ⬜ |
+| 7 | Home summaries + CSV exports + KTS 18-module syllabus (`kts syllabus.docx`) | ✅ built |
+| 8 | Hardening + README + HANDOVER.md | ⬜ **next** |
 
 **Verified so far:** `typecheck`, `lint`, and `build` pass on every phase;
 migrations 0000–0004 generated; and the preview harness has run all migrations

@@ -1,10 +1,21 @@
 import type { Intake, SyllabusTopic } from "@/lib/db/schema";
 import { topicState, weekNumber, type TopicState } from "@/lib/track-status";
+import { KTS_COURSE_POLICY } from "@/lib/syllabus-defaults";
 import { todayKampala } from "@/lib/format";
 
 const SEMESTERS = [
-  { n: 1, title: "Semester 1", subtitle: "Arc welding fundamentals" },
-  { n: 2, title: "Semester 2", subtitle: "Fabrication & drawings" },
+  {
+    n: 1,
+    title: "Semester 1 (13 weeks · 455 hrs)",
+    subtitle:
+      "Modules 1–10 · Safety, SMAW, Scale & Maths, Basic Joints, Hand Tools, OFW, Brazing, GMAW & Fabrication",
+  },
+  {
+    n: 2,
+    title: "Semester 2 (13 weeks · 455 hrs)",
+    subtitle:
+      "Modules 11–18 · Electricity, Blueprints, AWS Symbols, GTAW (TIG), Metallurgy, Entrepreneurship & DIT Exams",
+  },
 ];
 
 const STATE_STYLE: Record<TopicState, { label: string; cls: string }> = {
@@ -58,6 +69,26 @@ export function SyllabusTimeline({
 
   return (
     <div className="space-y-6">
+      <div className="card space-y-2 border-neutral-200 bg-neutral-50/70 p-4 text-xs text-neutral-600">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="font-semibold text-neutral-900">
+            {KTS_COURSE_POLICY.courseName}
+          </span>
+          <span className="rounded-full bg-white px-2.5 py-0.5 font-medium text-neutral-700 border border-neutral-200">
+            {KTS_COURSE_POLICY.duration} · Max {KTS_COURSE_POLICY.classSizeLimit}{" "}
+            students
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-neutral-500">
+          <span>Schedule: {KTS_COURSE_POLICY.schedule}</span>
+          <span>
+            Graduation: ≥{KTS_COURSE_POLICY.attendanceRequirementPct}%
+            attendance &amp; ≥{KTS_COURSE_POLICY.passMarkPct}% theory/practical
+          </span>
+          <span>Certification: {KTS_COURSE_POLICY.certification}</span>
+        </div>
+      </div>
+
       {SEMESTERS.map((sem) => {
         const semTopics = topics.filter((t) => t.semester === sem.n);
         const total = semTopics.length;
@@ -112,7 +143,12 @@ export function SyllabusTimeline({
                         <div className="truncate text-sm font-medium text-neutral-800">
                           {t.title}
                         </div>
-                        <div className="text-xs text-neutral-400">
+                        {t.description && (
+                          <div className="mt-0.5 line-clamp-2 text-xs text-neutral-500">
+                            {t.description}
+                          </div>
+                        )}
+                        <div className="mt-0.5 text-xs text-neutral-400">
                           Week {t.targetWeek} ·{" "}
                           {t.type === "theory" ? "Theory" : "Practical"}
                         </div>

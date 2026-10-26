@@ -120,6 +120,24 @@ export function EquipmentView({
               {unassignedBooths.length === 1 ? "" : "s"}
             </span>
           )}
+          {isAdmin && (
+            <>
+              <a
+                href="/admin/export/equipment"
+                download
+                className="btn-secondary py-2"
+              >
+                Export equipment CSV
+              </a>
+              <a
+                href="/admin/export/faults"
+                download
+                className="btn-secondary py-2"
+              >
+                Export faults CSV
+              </a>
+            </>
+          )}
         </div>
       </header>
 

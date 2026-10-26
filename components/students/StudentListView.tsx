@@ -59,6 +59,7 @@ export function StudentListView({
   showFees,
   q = "",
   status = "",
+  filter = "",
 }: {
   intakeName: string;
   items: StudentListItem[];
@@ -67,6 +68,7 @@ export function StudentListView({
   showFees: boolean;
   q?: string;
   status?: string;
+  filter?: string;
 }) {
   const query = q.trim().toLowerCase();
   const matchesQuery = (item: StudentListItem) => {
@@ -79,7 +81,12 @@ export function StudentListView({
     );
   };
 
-  const searched = items.filter(matchesQuery);
+  const searched = items.filter(matchesQuery).filter((item) => {
+    if (filter === "under_threshold") return item.attendance.belowThreshold;
+    if (filter === "owing" && showFees) return (item.fees?.balance ?? 0) > 0;
+    return true;
+  });
+
   const mainItems = searched.filter((item) => {
     if (status === "active") return item.student.status === "active";
     if (status === "suspended") return item.student.status === "suspended";
@@ -103,6 +110,24 @@ export function StudentListView({
             {showFees ? " · fee balances derived from ledger" : ""}
           </p>
         </div>
+        {showFees && (
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/admin/export/students"
+              download
+              className="btn-secondary py-2"
+            >
+              Export students CSV
+            </a>
+            <a
+              href="/admin/export/payments"
+              download
+              className="btn-secondary py-2"
+            >
+              Export fee ledger CSV
+            </a>
+          </div>
+        )}
       </header>
 
       {/* Search & filter */}
@@ -133,6 +158,23 @@ export function StudentListView({
             <option value="active">Active only</option>
             <option value="suspended">Suspended only</option>
             <option value="dropped_out">Dropped out</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="student-filter" className="field-label">
+            Focus filter
+          </label>
+          <select
+            id="student-filter"
+            name="filter"
+            defaultValue={filter}
+            className="field-input"
+          >
+            <option value="">All students</option>
+            <option value="under_threshold">
+              Below {threshold}% attendance
+            </option>
+            {showFees && <option value="owing">With fee balance due</option>}
           </select>
         </div>
         <button type="submit" className="btn-primary">
