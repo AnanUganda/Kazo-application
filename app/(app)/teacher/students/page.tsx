@@ -1,0 +1,45 @@
+import { requireRole } from "@/lib/permissions";
+import { getActiveIntake } from "@/lib/intake";
+import { loadStudentList } from "@/lib/students-data";
+import { StudentListView } from "@/components/students/StudentListView";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Students — Kazo Technical School" };
+
+export default async function TeacherStudentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string }>;
+}) {
+  await requireRole("teacher", "admin");
+  const { q = "", status = "" } = await searchParams;
+  const intake = await getActiveIntake();
+
+  if (!intake) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-xl font-bold text-neutral-900">Students</h1>
+        <div className="card text-sm text-neutral-500">
+          There is no active intake yet.
+        </div>
+      </div>
+    );
+  }
+
+  // Teacher view: strictly excludes fee queries and fee balances.
+  const { items, threshold } = await loadStudentList(intake.id, {
+    includeFees: false,
+  });
+
+  return (
+    <StudentListView
+      intakeName={intake.name}
+      items={items}
+      threshold={threshold}
+      basePath="/teacher/students"
+      showFees={false}
+      q={q}
+      status={status}
+    />
+  );
+}

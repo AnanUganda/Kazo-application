@@ -78,24 +78,142 @@ async function seed(db: PreviewDb) {
     .values(topicDefs.map((t, i) => ({ ...t, intakeId: intake.id, sortOrder: i })))
     .returning();
 
-  const studentDefs: { fullName: string; phone: string; booth: string }[] = [
-    { fullName: "Amina Nakato", phone: "0772111111", booth: "Booth 1" },
-    { fullName: "Brian Ssali", phone: "0772222222", booth: "Booth 2" },
-    { fullName: "Carol Achan", phone: "0772333333", booth: "Booth 3" },
-    { fullName: "David Mugisha", phone: "0772444444", booth: "Booth 4" },
+  const studentDefs: {
+    fullName: string;
+    phone: string;
+    email: string;
+    dob: string;
+    location: string;
+    booth: string;
+    nextOfKinName: string;
+    nextOfKinPhone: string;
+    nextOfKinRelationship: string;
+    educationLevel: string;
+    priorExperience: string;
+    heardAbout: string;
+    interviewNotes: string;
+  }[] = [
+    {
+      fullName: "Amina Nakato",
+      phone: "0772111111",
+      email: "amina.nakato@example.com",
+      dob: "2003-04-12",
+      location: "Kawempe, Kampala",
+      booth: "Booth 1",
+      nextOfKinName: "Hajjat Mariam Nakato",
+      nextOfKinPhone: "0772900100",
+      nextOfKinRelationship: "Mother",
+      educationLevel: "S.4 (UCE)",
+      priorExperience: "Assisted at a local metal fabrication workshop for 3 months.",
+      heardAbout: "Graduate referral",
+      interviewNotes: "Very steady hand during bench test; strong safety awareness.",
+    },
+    {
+      fullName: "Brian Ssali",
+      phone: "0772222222",
+      email: "brian.ssali@example.com",
+      dob: "2001-11-23",
+      location: "Nansana, Wakiso",
+      booth: "Booth 2",
+      nextOfKinName: "Peter Ssali",
+      nextOfKinPhone: "0772900200",
+      nextOfKinRelationship: "Father",
+      educationLevel: "S.6 (UACE)",
+      priorExperience: "None",
+      heardAbout: "Facebook / Website",
+      interviewNotes: "Eager learner, passed practical measurement test.",
+    },
+    {
+      fullName: "Carol Achan",
+      phone: "0772333333",
+      email: "carol.achan@example.com",
+      dob: "2004-02-08",
+      location: "Bwaise, Kampala",
+      booth: "Booth 3",
+      nextOfKinName: "Beatrice Oroma",
+      nextOfKinPhone: "0772900300",
+      nextOfKinRelationship: "Aunt",
+      educationLevel: "S.4 (UCE)",
+      priorExperience: "Basic grinding & cutting.",
+      heardAbout: "Community outreach",
+      interviewNotes: "Good practical score; commutes from Bwaise.",
+    },
+    {
+      fullName: "David Mugisha",
+      phone: "0772444444",
+      email: "david.mugisha@example.com",
+      dob: "2002-07-19",
+      location: "Kazo Central, Kampala",
+      booth: "Booth 4",
+      nextOfKinName: "Moses Mugisha",
+      nextOfKinPhone: "0772900400",
+      nextOfKinRelationship: "Brother",
+      educationLevel: "S.4 (UCE)",
+      priorExperience: "None",
+      heardAbout: "Walk-in",
+      interviewNotes: "Lives nearby in Kazo; passed entrance interview.",
+    },
   ];
-  const studs = await db
-    .insert(schema.students)
+
+  const enrolledApps = await db
+    .insert(schema.applications)
     .values(
       studentDefs.map((s) => ({
         intakeId: intake.id,
         fullName: s.fullName,
         phone: s.phone,
-        booth: s.booth,
-        status: "active" as const,
+        email: s.email,
+        dob: s.dob,
+        location: s.location,
+        educationLevel: s.educationLevel,
+        priorExperience: s.priorExperience,
+        heardAbout: s.heardAbout,
+        nextOfKinName: s.nextOfKinName,
+        nextOfKinPhone: s.nextOfKinPhone,
+        nextOfKinRelationship: s.nextOfKinRelationship,
+        stage: "enrolled" as const,
+        stageEnteredAt: ts(-55),
+        testDate: iso(-58),
+        testResult: "pass" as const,
+        interviewNotes: s.interviewNotes,
+        createdAt: ts(-62),
       })),
     )
     .returning();
+
+  const studs = await db
+    .insert(schema.students)
+    .values(
+      studentDefs.map((s, idx) => ({
+        applicationId: enrolledApps[idx].id,
+        intakeId: intake.id,
+        fullName: s.fullName,
+        phone: s.phone,
+        email: s.email,
+        dob: s.dob,
+        location: s.location,
+        nextOfKinName: s.nextOfKinName,
+        nextOfKinPhone: s.nextOfKinPhone,
+        nextOfKinRelationship: s.nextOfKinRelationship,
+        booth: s.booth,
+        status: "active" as const,
+        createdAt: ts(-55),
+      })),
+    )
+    .returning();
+
+  // Also seed one dropped-out student so the kept-records section is visible in preview.
+  await db.insert(schema.students).values({
+    intakeId: intake.id,
+    fullName: "Samuel Otim",
+    phone: "0772555555",
+    location: "Matugga",
+    nextOfKinName: "Richard Otim",
+    nextOfKinPhone: "0772900500",
+    nextOfKinRelationship: "Uncle",
+    status: "dropped_out",
+    createdAt: ts(-55),
+  });
 
   const apps = await db
     .insert(schema.applications)
@@ -158,6 +276,23 @@ async function seed(db: PreviewDb) {
     studentId: brian.id, feeChargeId: s1b.id, entryType: "payment",
     amount: 800_000, method: "mtn", reference: "MTN-200", paidAt: iso(-25), confirmedBy: "Bursar",
   });
+
+  // Carol: semester 1 partial payment (UGX 300,000 paid, UGX 500,000 balance).
+  const carol = studs[2];
+  const [s1c] = await db
+    .insert(schema.feeCharges)
+    .values({ studentId: carol.id, feeTypeCode: "semester_1", amountDue: 800_000, semester: 1 })
+    .returning();
+  await db.insert(schema.payments).values({
+    studentId: carol.id, feeChargeId: s1c.id, entryType: "payment",
+    amount: 300_000, method: "mtn", reference: "MTN-412", paidAt: iso(-18), confirmedBy: "Bursar",
+  });
+
+  // David: semester 1 billed, no payments yet (UGX 800,000 balance).
+  const david = studs[3];
+  await db
+    .insert(schema.feeCharges)
+    .values({ studentId: david.id, feeTypeCode: "semester_1", amountDue: 800_000, semester: 1 });
 
   // Lesson logs by the teacher.
   const [log1] = await db

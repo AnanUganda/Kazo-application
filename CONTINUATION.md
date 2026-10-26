@@ -1,7 +1,7 @@
 # Kazo Technical School — Staff Dashboard · Continuation Brief
 
 > Handoff document so any developer or AI coding agent can continue this build.
-> Last updated after **Phase 4** + a preview harness. Read this top-to-bottom
+> Last updated after **Phase 5** + preview harness. Read this top-to-bottom
 > before writing code.
 
 ---
@@ -9,8 +9,8 @@
 ## 0. How to use this document
 
 This project is being built in **strict phases (0–8), one at a time**, each on
-its own branch, with a stop-and-report after every phase. Phases 0–4 are done.
-**Next up is Phase 5.** Follow the process and conventions below exactly — they
+its own branch, with a stop-and-report after every phase. Phases 0–5 are done.
+**Next up is Phase 6.** Follow the process and conventions below exactly — they
 are locked decisions, not suggestions.
 
 ---
@@ -44,8 +44,8 @@ are locked decisions, not suggestions.
 | 3 | Applications: public form + API, payment ledger, board, stage moves, auto-create student | ✅ built |
 | 4 | Syllabus plan + lesson logs (attendance, progress, issues, 7-day edit, timeline, history) | ✅ built |
 | — | **Preview harness** (in-memory pglite + sample data, no sign-in) | ✅ built (dev-only) |
-| 5 | Students, fees, attendance | ⬜ **next** |
-| 6 | Inventory (consumables + equipment + faults) | ⬜ |
+| 5 | Students, fees, attendance | ✅ built |
+| 6 | Inventory (consumables + equipment + faults) | ⬜ **next** |
 | 7 | Home summaries + CSV exports | ⬜ |
 | 8 | Hardening + README + HANDOVER.md | ⬜ |
 
@@ -66,8 +66,8 @@ against it, any deploy, the Netlify/GitHub setup, and Phases 5–8.
 app/
   (auth)/sign-in/        sign-in page + server action (Supabase signInWithPassword)
   (app)/                 authenticated area (requireStaff in layout)
-    admin/ applications/ intakes/ lessons/ settings/ staff/ syllabus/
-    teacher/ log/ syllabus/
+    admin/ applications/ intakes/ lessons/ settings/ staff/ students/ syllabus/
+    teacher/ log/ students/ syllabus/
     store/
     lessons/[id]/edit/   shared lesson-log edit (admin any; teacher own ≤7 days)
   apply/                 PUBLIC application form (no auth)
@@ -76,6 +76,7 @@ app/
   layout.tsx             root layout
 components/
   shell/                 AppShell (sidebar/drawer), nav.ts, icons, Logo
+  students/              StudentListView, StudentProfileView (role-aware; fees Admin-only)
   syllabus/SyllabusTimeline.tsx
 lib/
   db/schema.ts           ALL Drizzle tables (single source of truth)
@@ -86,6 +87,8 @@ lib/
   auth/session.ts        getSessionStaff / requireStaff
   permissions.ts         requireRole(...) + homePathForRole
   ledger.ts              pure ledgerBalance()
+  attendance.ts          pure computeAttendance()
+  students-data.ts       student list + profile loaders (skips fee queries for Teacher)
   track-status.ts        pure syllabus status maths
   format.ts, fees.ts, intake.ts, activity.ts, preview.ts, preview-actions.ts
 scripts/seed-admin.ts    first admin (Supabase admin API + staff row)
@@ -99,15 +102,16 @@ drizzle.config.ts, netlify.toml, tailwind.config.ts
 ## 4. Branches & how to continue
 
 Branches are stacked (each built on the previous). The **tip with everything**
-is **`preview-harness`** (contains Phases 1–4 + Supabase switch + preview).
+is **`phase-5-students-fees`** (contains Phases 1–5 + Supabase switch + preview).
 
 ```
 phase-1-foundation → phase-2-settings-intakes → switch-to-supabase
-  → phase-3-applications → phase-4-syllabus-lessons → preview-harness (TIP)
+  → phase-3-applications → phase-4-syllabus-lessons → preview-harness
+  → phase-5-students-fees (TIP)
 ```
 
 - There is **no `main`** yet, and nothing has been merged or deployed.
-- **Start Phase 5 from the tip:** `git checkout preview-harness && git checkout -b phase-5-students-fees`.
+- **Start Phase 6 from the tip:** `git checkout phase-5-students-fees && git checkout -b phase-6-inventory`.
   (Keeping the preview harness in the lineage means you can keep demoing new
   phases with no database.)
 - **Do NOT** merge to main or deploy to production without the owner's approval.

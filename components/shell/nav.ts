@@ -12,7 +12,7 @@ const NAV: Record<StaffRole, NavItem[]> = {
   admin: [
     { label: "Home", href: "/admin", icon: "home", implemented: true },
     { label: "Applications", href: "/admin/applications", icon: "applications", implemented: true },
-    { label: "Students", href: "/admin/students", icon: "students", implemented: false },
+    { label: "Students", href: "/admin/students", icon: "students", implemented: true },
     { label: "Lessons", href: "/admin/lessons", icon: "lessons", implemented: true },
     { label: "Syllabus", href: "/admin/syllabus", icon: "syllabus", implemented: true },
     { label: "Inventory", href: "/admin/inventory", icon: "inventory", implemented: false },
@@ -25,7 +25,7 @@ const NAV: Record<StaffRole, NavItem[]> = {
     { label: "Home", href: "/teacher", icon: "home", implemented: true },
     { label: "Log lesson", href: "/teacher/log", icon: "lessons", implemented: true },
     { label: "Syllabus", href: "/teacher/syllabus", icon: "syllabus", implemented: true },
-    { label: "Students", href: "/teacher/students", icon: "students", implemented: false },
+    { label: "Students", href: "/teacher/students", icon: "students", implemented: true },
   ],
   store_keeper: [
     { label: "Home", href: "/store", icon: "home", implemented: true },

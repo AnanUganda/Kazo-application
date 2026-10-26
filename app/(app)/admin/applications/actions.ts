@@ -204,6 +204,15 @@ export async function moveToEnrolled(
   if (!activeIntake)
     return { ok: false, error: "No active intake. Create one first." };
 
+  const sem1Fee =
+    (
+      await getDb()
+        .select({ amount: feeTypes.defaultAmount })
+        .from(feeTypes)
+        .where(eq(feeTypes.code, "semester_1"))
+        .limit(1)
+    )[0]?.amount ?? 800_000;
+
   const db = getDb();
   let studentId = "";
   await db.transaction(async (tx) => {
@@ -226,6 +235,15 @@ export async function moveToEnrolled(
       .returning({ id: students.id });
     studentId = student.id;
 
+    await tx.insert(feeCharges).values({
+      studentId: student.id,
+      feeTypeCode: "semester_1",
+      amountDue: sem1Fee,
+      semester: 1,
+      createdBy: admin.id,
+      updatedBy: admin.id,
+    });
+
     await tx
       .update(applications)
       .set({
@@ -246,6 +264,8 @@ export async function moveToEnrolled(
   });
 
   revalidatePath("/admin/applications");
+  revalidatePath("/admin/students");
+  revalidatePath("/teacher/students");
   return { ok: true };
 }
 

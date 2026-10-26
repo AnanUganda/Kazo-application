@@ -23,6 +23,15 @@ export function todayKampala(): string {
   );
 }
 
+/** Convert a timestamp or date string to YYYY-MM-DD in Africa/Kampala. */
+export function toKampalaDate(value: string | Date): string {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+  const d = typeof value === "string" ? new Date(value) : value;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: KAMPALA }).format(d);
+}
+
 /** Whole days elapsed since a timestamp (never negative). */
 export function daysSince(value: string | Date): number {
   const then = typeof value === "string" ? new Date(value) : value;
