@@ -315,3 +315,108 @@ export type Student = typeof students.$inferSelect;
 export type FeeCharge = typeof feeCharges.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
 export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
+
+/* ------------------------------------------------------------------ *
+ * Phase 4: syllabus plan + lesson logs (attendance, progress, issues).
+ * ------------------------------------------------------------------ */
+
+export const topicType = pgEnum("topic_type", ["theory", "practical"]);
+export const lessonSession = pgEnum("lesson_session", [
+  "morning",
+  "afternoon",
+]);
+export const topicProgressStatus = pgEnum("topic_progress_status", [
+  "started",
+  "completed",
+]);
+export const issueStatus = pgEnum("issue_status", ["open", "resolved"]);
+
+/** Syllabus plan topics, per intake and semester. Copyable to the next intake. */
+export const syllabusTopics = pgTable("syllabus_topics", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  intakeId: uuid("intake_id")
+    .notNull()
+    .references(() => intakes.id),
+  semester: integer("semester").notNull(),
+  title: text("title").notNull(),
+  type: topicType("type").notNull(),
+  targetWeek: integer("target_week").notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  ...auditColumns(),
+});
+
+/** A lesson log: one session by one teacher. Multiple teachers share the plan. */
+export const lessonLogs = pgTable("lesson_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  intakeId: uuid("intake_id")
+    .notNull()
+    .references(() => intakes.id),
+  teacherId: uuid("teacher_id")
+    .notNull()
+    .references(() => staff.id),
+  date: date("date").notNull(),
+  session: lessonSession("session").notNull(),
+  notes: text("notes"),
+  ...auditColumns(),
+});
+
+/** Which topics were Started/Completed in a lesson. */
+export const lessonTopicProgress = pgTable(
+  "lesson_topic_progress",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    lessonLogId: uuid("lesson_log_id")
+      .notNull()
+      .references(() => lessonLogs.id),
+    topicId: uuid("topic_id")
+      .notNull()
+      .references(() => syllabusTopics.id),
+    status: topicProgressStatus("status").notNull(),
+    ...auditColumns(),
+  },
+  (t) => [
+    uniqueIndex("uniq_lesson_topic").on(t.lessonLogId, t.topicId),
+  ],
+);
+
+/** Absences — the ONLY source of attendance. A row means the student was absent. */
+export const lessonAbsences = pgTable(
+  "lesson_absences",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    lessonLogId: uuid("lesson_log_id")
+      .notNull()
+      .references(() => lessonLogs.id),
+    studentId: uuid("student_id")
+      .notNull()
+      .references(() => students.id),
+    ...auditColumns(),
+  },
+  (t) => [
+    uniqueIndex("uniq_lesson_absence").on(t.lessonLogId, t.studentId),
+  ],
+);
+
+/**
+ * Issues raised during a lesson. A machine issue (is_machine_issue) is a fault
+ * report for the store keeper; the equipment register links in and resolution
+ * is handled in Phase 6.
+ */
+export const lessonIssues = pgTable("lesson_issues", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  lessonLogId: uuid("lesson_log_id")
+    .notNull()
+    .references(() => lessonLogs.id),
+  description: text("description").notNull(),
+  isMachineIssue: boolean("is_machine_issue").notNull().default(false),
+  machineLabel: text("machine_label"),
+  status: issueStatus("status").notNull().default("open"),
+  ...auditColumns(),
+});
+
+export type SyllabusTopic = typeof syllabusTopics.$inferSelect;
+export type TopicType = (typeof topicType.enumValues)[number];
+export type LessonLog = typeof lessonLogs.$inferSelect;
+export type LessonSession = (typeof lessonSession.enumValues)[number];
+export type LessonIssue = typeof lessonIssues.$inferSelect;

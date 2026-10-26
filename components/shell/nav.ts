@@ -13,8 +13,8 @@ const NAV: Record<StaffRole, NavItem[]> = {
     { label: "Home", href: "/admin", icon: "home", implemented: true },
     { label: "Applications", href: "/admin/applications", icon: "applications", implemented: true },
     { label: "Students", href: "/admin/students", icon: "students", implemented: false },
-    { label: "Lessons", href: "/admin/lessons", icon: "lessons", implemented: false },
-    { label: "Syllabus", href: "/admin/syllabus", icon: "syllabus", implemented: false },
+    { label: "Lessons", href: "/admin/lessons", icon: "lessons", implemented: true },
+    { label: "Syllabus", href: "/admin/syllabus", icon: "syllabus", implemented: true },
     { label: "Inventory", href: "/admin/inventory", icon: "inventory", implemented: false },
     { label: "Equipment", href: "/admin/equipment", icon: "equipment", implemented: false },
     { label: "Intakes", href: "/admin/intakes", icon: "syllabus", implemented: true },
@@ -23,8 +23,8 @@ const NAV: Record<StaffRole, NavItem[]> = {
   ],
   teacher: [
     { label: "Home", href: "/teacher", icon: "home", implemented: true },
-    { label: "Log lesson", href: "/teacher/log", icon: "lessons", implemented: false },
-    { label: "Syllabus", href: "/teacher/syllabus", icon: "syllabus", implemented: false },
+    { label: "Log lesson", href: "/teacher/log", icon: "lessons", implemented: true },
+    { label: "Syllabus", href: "/teacher/syllabus", icon: "syllabus", implemented: true },
     { label: "Students", href: "/teacher/students", icon: "students", implemented: false },
   ],
   store_keeper: [
