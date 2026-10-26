@@ -4,8 +4,8 @@ import { AlertTriangle, ListChecks, Plus, UserX } from "lucide-react";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
 import { lessonAbsences, lessonLogs, staff } from "@/lib/db/schema";
-import { formatDate, todayKampala } from "@/lib/format";
-import { getActiveIntake } from "@/lib/intake";
+import { displayLastName, formatDate, todayKampala } from "@/lib/format";
+import { getActiveIntake, intakeEvents } from "@/lib/intake";
 import { loadStudentList } from "@/lib/students-data";
 import { loadSyllabus } from "@/lib/syllabus-data";
 import { KTS_COURSE_POLICY } from "@/lib/syllabus-defaults";
@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatCard, type StatBadgeVariant } from "@/components/stat-card";
+import { HomeCalendar } from "@/components/home-calendar";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Teacher Home — Kazo Technical School" };
@@ -140,7 +141,7 @@ export default async function TeacherHome() {
               Teacher Workspace · {KTS_COURSE_POLICY.courseName}
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight">
-              Welcome, {teacher.fullName}
+              Welcome, {displayLastName(teacher.fullName)}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {KTS_COURSE_POLICY.schedule} ·{" "}
@@ -183,6 +184,9 @@ export default async function TeacherHome() {
           hint={`Out of ${activeStudents.length} active students`}
         />
       </div>
+
+      {/* Calendar */}
+      <HomeCalendar events={intakeEvents(activeIntake)} />
 
       {/* Panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

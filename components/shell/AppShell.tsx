@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { navForRole, roleLabel } from "./nav";
 import { Logo } from "./Logo";
+import { ThemeToggle } from "./ThemeToggle";
 
 const ICONS: Record<string, LucideIcon> = {
   home: Home,
@@ -160,8 +161,9 @@ export function AppShell({
 
   const sidebarInner = (
     <>
-      <div className="px-5 py-5">
+      <div className="flex items-center justify-between px-5 py-5">
         <Logo />
+        <ThemeToggle />
       </div>
       {nav}
       {userCard}
@@ -178,14 +180,17 @@ export function AppShell({
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background px-4 py-3 md:hidden">
         <Logo compact />
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Open menu"
-          onClick={() => setOpen(true)}
-        >
-          <Menu className="size-5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Open menu"
+            onClick={() => setOpen(true)}
+          >
+            <Menu className="size-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Mobile drawer */}

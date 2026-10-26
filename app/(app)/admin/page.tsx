@@ -16,8 +16,14 @@ import {
   lessonLogs,
   type ApplicationStage,
 } from "@/lib/db/schema";
-import { daysSince, formatDate, formatUGX, todayKampala } from "@/lib/format";
-import { getActiveIntake } from "@/lib/intake";
+import {
+  daysSince,
+  displayLastName,
+  formatDate,
+  formatUGX,
+  todayKampala,
+} from "@/lib/format";
+import { getActiveIntake, intakeEvents } from "@/lib/intake";
 import { loadConsumables, loadEquipmentRegister } from "@/lib/inventory-data";
 import { loadStudentList } from "@/lib/students-data";
 import { loadSyllabus } from "@/lib/syllabus-data";
@@ -34,6 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { StatCard, type StatBadgeVariant } from "@/components/stat-card";
+import { HomeCalendar } from "@/components/home-calendar";
 import { AdminAppsChart } from "./AdminAppsChart";
 
 export const dynamic = "force-dynamic";
@@ -221,7 +228,7 @@ export default async function AdminHome() {
             Administrator Overview · {KTS_COURSE_POLICY.courseName}
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">
-            Welcome, {admin.fullName}
+            Welcome, {displayLastName(admin.fullName)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {activeIntake
@@ -311,6 +318,9 @@ export default async function AdminHome() {
           <AdminAppsChart data={weekSeries} />
         </CardContent>
       </Card>
+
+      {/* Calendar */}
+      <HomeCalendar events={intakeEvents(activeIntake)} />
 
       {/* Two-column summary panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

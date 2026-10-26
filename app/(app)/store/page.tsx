@@ -4,8 +4,10 @@ import { ArrowLeftRight, Package, Wrench } from "lucide-react";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
 import { stockMovements } from "@/lib/db/schema";
-import { formatDate } from "@/lib/format";
+import { displayLastName, formatDate } from "@/lib/format";
 import { loadConsumables, loadEquipmentRegister } from "@/lib/inventory-data";
+import { getActiveIntake, intakeEvents } from "@/lib/intake";
+import { HomeCalendar } from "@/components/home-calendar";
 import {
   Card,
   CardContent,
@@ -22,6 +24,7 @@ export const metadata = { title: "Store Home — Kazo Technical School" };
 export default async function StoreHome() {
   const storeKeeper = await requireRole("store_keeper");
   const db = getDb();
+  const activeIntake = await getActiveIntake();
 
   const [consumablesList, equipmentData, recentMovements] = await Promise.all([
     loadConsumables(),
@@ -82,7 +85,7 @@ export default async function StoreHome() {
             Store Keeper Workspace · Workshop &amp; Consumables
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">
-            Welcome, {storeKeeper.fullName}
+            Welcome, {displayLastName(storeKeeper.fullName)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Low-stock consumables, open machine faults, and the latest stock
@@ -135,6 +138,9 @@ export default async function StoreHome() {
           hint="Record stock in, stock out, or a count"
         />
       </div>
+
+      {/* Calendar */}
+      <HomeCalendar events={intakeEvents(activeIntake)} />
 
       {/* Two-column panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
