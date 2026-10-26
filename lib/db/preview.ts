@@ -311,8 +311,85 @@ async function seed(db: PreviewDb) {
     .returning();
   await db.insert(schema.lessonTopicProgress).values({ lessonLogId: log2.id, topicId: topics[2].id, status: "started" });
   await db.insert(schema.lessonAbsences).values({ lessonLogId: log2.id, studentId: studs[3].id });
-  await db.insert(schema.lessonIssues).values({
-    lessonLogId: log2.id, description: "Welding machine not powering on.",
-    isMachineIssue: true, machineLabel: "KTS-WM-03", status: "open", createdBy: PREVIEW_IDS.teacher,
-  });
+  const [machineIssue] = await db
+    .insert(schema.lessonIssues)
+    .values({
+      lessonLogId: log2.id,
+      description: "Welding machine not powering on.",
+      isMachineIssue: true,
+      machineLabel: "KTS-WM-03",
+      status: "open",
+      createdBy: PREVIEW_IDS.teacher,
+    })
+    .returning();
+
+  // Phase 6: Consumables + stock movements (stock level derived from movements).
+  const [rods, discs, plate, argon] = await db
+    .insert(schema.consumables)
+    .values([
+      { name: "E6013 2.5mm Welding Electrodes", category: "electrodes", unit: "box", reorderLevel: 5, createdBy: PREVIEW_IDS.store_keeper },
+      { name: "4.5\" Grinding Discs", category: "discs", unit: "piece", reorderLevel: 15, createdBy: PREVIEW_IDS.store_keeper },
+      { name: "Mild Steel Flat Bar 50x6mm", category: "steel", unit: "length", reorderLevel: 10, createdBy: PREVIEW_IDS.store_keeper },
+      { name: "Argon / CO2 Shielding Gas", category: "gas", unit: "cylinder", reorderLevel: 2, createdBy: PREVIEW_IDS.store_keeper },
+    ])
+    .returning();
+
+  await db.insert(schema.stockMovements).values([
+    // E6013 rods: +20 in, -8 out -> 12 boxes in stock (OK)
+    { consumableId: rods.id, type: "in", date: iso(-45), quantityDelta: 20, supplier: "Roofings Ltd", cost: 900_000, receivedBy: "Mary Atim", createdBy: PREVIEW_IDS.store_keeper },
+    { consumableId: rods.id, type: "out", date: iso(-20), quantityDelta: -8, purpose: "class_practice", takenBy: "John Okello", createdBy: PREVIEW_IDS.store_keeper },
+    // Grinding discs: +30 in, -18 out, -2 damaged adjustment -> 10 pcs in stock (LOW STOCK <= 15)
+    { consumableId: discs.id, type: "in", date: iso(-40), quantityDelta: 30, supplier: "Hardware World Kampala", cost: 240_000, receivedBy: "Mary Atim", createdBy: PREVIEW_IDS.store_keeper },
+    { consumableId: discs.id, type: "out", date: iso(-14), quantityDelta: -18, purpose: "class_practice", takenBy: "John Okello", createdBy: PREVIEW_IDS.store_keeper },
+    { consumableId: discs.id, type: "adjustment", date: iso(-5), quantityDelta: -2, physicalCount: 10, adjustmentReason: "damaged", notes: "2 cracked discs discarded", createdBy: PREVIEW_IDS.store_keeper },
+    // Mild steel bar: +25 in, -10 out -> 15 lengths in stock (OK)
+    { consumableId: plate.id, type: "in", date: iso(-50), quantityDelta: 25, supplier: "Steel & Tube Industries", cost: 1_125_000, receivedBy: "Mary Atim", createdBy: PREVIEW_IDS.store_keeper },
+    { consumableId: plate.id, type: "out", date: iso(-12), quantityDelta: -10, purpose: "class_practice", takenBy: "John Okello", createdBy: PREVIEW_IDS.store_keeper },
+    // Shielding gas: +4 in, -2 out -> 2 cylinders in stock (LOW STOCK <= 2)
+    { consumableId: argon.id, type: "in", date: iso(-35), quantityDelta: 4, supplier: "Tolagas Uganda", cost: 680_000, receivedBy: "Mary Atim", createdBy: PREVIEW_IDS.store_keeper },
+    { consumableId: argon.id, type: "out", date: iso(-10), quantityDelta: -2, purpose: "workshop_job", takenBy: "John Okello", createdBy: PREVIEW_IDS.store_keeper },
+  ]);
+
+  // Phase 6: Equipment register + fault log (linked two-way with students & lesson_issues).
+  const eqRows = await db
+    .insert(schema.equipment)
+    .values([
+      { assetCode: "KTS-WM-01", type: "MIG Welder", makeModel: "Lincoln PowerMIG 210", status: "working", booth: "Booth 1", assignedStudentId: studs[0].id, createdBy: PREVIEW_IDS.store_keeper },
+      { assetCode: "KTS-WM-02", type: "MIG Welder", makeModel: "Lincoln PowerMIG 210", status: "working", booth: "Booth 2", assignedStudentId: studs[1].id, createdBy: PREVIEW_IDS.store_keeper },
+      { assetCode: "KTS-WM-03", type: "MMA Inverter Welder", makeModel: "Miller Maxstar 161", status: "needs_repair", booth: "Booth 3", assignedStudentId: studs[2].id, createdBy: PREVIEW_IDS.store_keeper },
+      { assetCode: "KTS-WM-04", type: "MMA Inverter Welder", makeModel: "Miller Maxstar 161", status: "working", booth: "Booth 4", assignedStudentId: studs[3].id, createdBy: PREVIEW_IDS.store_keeper },
+      { assetCode: "KTS-AG-01", type: "Angle Grinder", makeModel: "Bosch GWS 750", status: "out_of_service", booth: null, assignedStudentId: null, createdBy: PREVIEW_IDS.store_keeper },
+    ])
+    .returning();
+
+  await db.insert(schema.equipmentFaults).values([
+    {
+      equipmentId: eqRows[2].id, // KTS-WM-03
+      lessonIssueId: machineIssue.id,
+      reportedAt: iso(-7),
+      problem: machineIssue.description,
+      reportedBy: "John Okello (Teacher)",
+      status: "open",
+      createdBy: PREVIEW_IDS.teacher,
+    },
+    {
+      equipmentId: eqRows[0].id, // KTS-WM-01 historical resolved fault
+      reportedAt: iso(-32),
+      problem: "Loose earth clamp cable.",
+      reportedBy: "John Okello (Teacher)",
+      status: "resolved",
+      fix: "Replaced earth clamp lug and re-crimped cable.",
+      fixedAt: iso(-30),
+      cost: 25_000,
+      createdBy: PREVIEW_IDS.store_keeper,
+    },
+    {
+      equipmentId: eqRows[4].id, // KTS-AG-01 out of service
+      reportedAt: iso(-3),
+      problem: "Worn armature bearings causing heavy vibration.",
+      reportedBy: "Mary Atim (Store)",
+      status: "open",
+      createdBy: PREVIEW_IDS.store_keeper,
+    },
+  ]);
 }

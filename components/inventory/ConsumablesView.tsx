@@ -1,0 +1,292 @@
+import type {
+  ConsumableCategory,
+  ConsumableUnit,
+  StockAdjustmentReason,
+  StockOutPurpose,
+} from "@/lib/db/schema";
+import type { ConsumableWithStock } from "@/lib/inventory-data";
+import { formatDate, formatUGX, todayKampala } from "@/lib/format";
+import {
+  AddConsumableForm,
+  EditConsumableForm,
+  StockCountForm,
+  StockInForm,
+  StockOutForm,
+} from "./ConsumablesControls";
+
+export const CATEGORY_LABEL: Record<ConsumableCategory, string> = {
+  electrodes: "Electrodes",
+  discs: "Discs",
+  steel: "Steel",
+  gas: "Gas",
+  other: "Other",
+};
+
+export const UNIT_LABEL: Record<ConsumableUnit, string> = {
+  box: "boxes",
+  piece: "pcs",
+  kg: "kg",
+  length: "lengths",
+  cylinder: "cylinders",
+};
+
+const PURPOSE_LABEL: Record<StockOutPurpose, string> = {
+  class_practice: "Class practice",
+  workshop_job: "Workshop job",
+  other: "Other",
+};
+
+const REASON_LABEL: Record<StockAdjustmentReason, string> = {
+  damaged: "Damaged",
+  lost: "Lost",
+  miscounted: "Miscounted",
+};
+
+export function ConsumablesView({
+  items,
+  actorName,
+  q = "",
+  category = "",
+  filter = "",
+}: {
+  items: ConsumableWithStock[];
+  actorName: string;
+  q?: string;
+  category?: string;
+  filter?: string;
+}) {
+  const today = todayKampala();
+  const query = q.trim().toLowerCase();
+
+  const filtered = items.filter(({ consumable, lowStock }) => {
+    if (query && !consumable.name.toLowerCase().includes(query)) return false;
+    if (category && consumable.category !== category) return false;
+    if (filter === "low" && !lowStock) return false;
+    return true;
+  });
+
+  const lowStockTotal = items.filter((i) => i.lowStock).length;
+
+  return (
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900">
+            Consumables &amp; stock
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Stock levels are always computed from stock movements (in, out, and
+            physical count adjustments) — never edited directly.
+          </p>
+        </div>
+        {lowStockTotal > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+            <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
+            {lowStockTotal} low-stock item{lowStockTotal === 1 ? "" : "s"}
+          </span>
+        )}
+      </header>
+
+      {/* Search & filter bar */}
+      <form method="get" className="flex flex-wrap items-end gap-3">
+        <div className="min-w-0 flex-1">
+          <label htmlFor="inv-q" className="field-label">
+            Search item
+          </label>
+          <input
+            id="inv-q"
+            name="q"
+            defaultValue={q}
+            placeholder="e.g. E6013, grinding disc, mild steel…"
+            className="field-input"
+          />
+        </div>
+        <div>
+          <label htmlFor="inv-cat" className="field-label">
+            Category
+          </label>
+          <select
+            id="inv-cat"
+            name="category"
+            defaultValue={category}
+            className="field-input"
+          >
+            <option value="">All categories</option>
+            {Object.entries(CATEGORY_LABEL).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="inv-filter" className="field-label">
+            Stock level
+          </label>
+          <select
+            id="inv-filter"
+            name="filter"
+            defaultValue={filter}
+            className="field-input"
+          >
+            <option value="">All items</option>
+            <option value="low">Low stock only (≤ reorder level)</option>
+          </select>
+        </div>
+        <button type="submit" className="btn-primary">
+          Filter
+        </button>
+      </form>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Add new consumable */}
+        <section className="lg:col-span-1">
+          <div className="card space-y-4">
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Add consumable item
+            </h2>
+            <AddConsumableForm />
+          </div>
+        </section>
+
+        {/* Consumables list */}
+        <section className="space-y-4 lg:col-span-2">
+          {filtered.length === 0 ? (
+            <div className="card text-sm text-neutral-500">
+              No consumable items match the current filter.
+            </div>
+          ) : (
+            filtered.map(({ consumable, stockLevel, lowStock, movements }) => (
+              <div
+                key={consumable.id}
+                className={`card space-y-4 ${
+                  lowStock ? "border-amber-300" : ""
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-neutral-900">
+                        {consumable.name}
+                      </h3>
+                      <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600">
+                        {CATEGORY_LABEL[consumable.category]}
+                      </span>
+                      {lowStock && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-amber-500"
+                            aria-hidden
+                          />
+                          Low stock (≤ {consumable.reorderLevel})
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-0.5 text-xs text-neutral-500">
+                      Unit: {consumable.unit} · Reorder level:{" "}
+                      {consumable.reorderLevel} {UNIT_LABEL[consumable.unit]}
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-xs text-neutral-400">In stock</div>
+                    <div
+                      className={`text-xl font-bold ${
+                        lowStock ? "text-amber-700" : "text-neutral-900"
+                      }`}
+                    >
+                      {stockLevel}{" "}
+                      <span className="text-xs font-medium text-neutral-500">
+                        {UNIT_LABEL[consumable.unit]}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action drawers: Stock in, Stock out, Physical count, Edit */}
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <StockInForm
+                    consumable={consumable}
+                    defaultDate={today}
+                    defaultReceivedBy={actorName}
+                  />
+                  <StockOutForm consumable={consumable} defaultDate={today} />
+                  <StockCountForm
+                    consumable={consumable}
+                    currentStock={stockLevel}
+                  />
+                  <EditConsumableForm consumable={consumable} />
+                </div>
+
+                {/* Movement history */}
+                <details className="rounded-xl border border-neutral-100 bg-neutral-50/50">
+                  <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-neutral-600">
+                    Movement log ({movements.length})
+                  </summary>
+                  <div className="space-y-1.5 border-t border-neutral-100 p-3 text-xs">
+                    {movements.length === 0 ? (
+                      <p className="text-neutral-400">No stock movements yet.</p>
+                    ) : (
+                      movements.slice(0, 20).map((m) => {
+                        const sign = m.quantityDelta > 0 ? "+" : "";
+                        const badgeColor =
+                          m.type === "in"
+                            ? "text-emerald-700 font-semibold"
+                            : m.type === "out"
+                              ? "text-brand font-semibold"
+                              : "text-amber-800 font-semibold";
+                        return (
+                          <div
+                            key={m.id}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-100 bg-white px-2.5 py-2"
+                          >
+                            <div>
+                              <span className={badgeColor}>
+                                {m.type === "in"
+                                  ? "Stock in"
+                                  : m.type === "out"
+                                    ? "Stock out"
+                                    : "Count adjustment"}{" "}
+                                · {sign}
+                                {m.quantityDelta} {consumable.unit}
+                              </span>
+                              {m.type === "in" && (
+                                <span className="ml-2 text-neutral-600">
+                                  Supplier: {m.supplier}
+                                  {m.cost !== null ? ` · ${formatUGX(m.cost)}` : ""}
+                                  {m.receivedBy ? ` · Rcvd by ${m.receivedBy}` : ""}
+                                </span>
+                              )}
+                              {m.type === "out" && (
+                                <span className="ml-2 text-neutral-600">
+                                  {m.purpose ? PURPOSE_LABEL[m.purpose] : ""}
+                                  {m.takenBy ? ` · Taken by ${m.takenBy}` : ""}
+                                </span>
+                              )}
+                              {m.type === "adjustment" && (
+                                <span className="ml-2 text-neutral-600">
+                                  Counted: {m.physicalCount} · Reason:{" "}
+                                  {m.adjustmentReason
+                                    ? REASON_LABEL[m.adjustmentReason]
+                                    : "—"}
+                                  {m.notes ? ` (${m.notes})` : ""}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-neutral-400">
+                              {formatDate(m.date)}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </details>
+              </div>
+            ))
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}

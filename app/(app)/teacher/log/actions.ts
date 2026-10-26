@@ -2,11 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq, ilike, isNull } from "drizzle-orm";
 import { requireRole } from "@/lib/permissions";
 import { requireStaff } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import {
+  equipment,
+  equipmentFaults,
   lessonAbsences,
   lessonIssues,
   lessonLogs,
@@ -116,15 +118,57 @@ export async function createLessonLog(
         })),
       );
 
-    if (p.issue)
-      await tx.insert(lessonIssues).values({
-        lessonLogId: log.id,
-        description: p.issue.description,
-        isMachineIssue: p.issue.isMachine,
-        machineLabel: p.issue.machineLabel,
-        createdBy: me.id,
-        updatedBy: me.id,
-      });
+    if (p.issue) {
+      const [insertedIssue] = await tx
+        .insert(lessonIssues)
+        .values({
+          lessonLogId: log.id,
+          description: p.issue.description,
+          isMachineIssue: p.issue.isMachine,
+          machineLabel: p.issue.machineLabel,
+          createdBy: me.id,
+          updatedBy: me.id,
+        })
+        .returning({ id: lessonIssues.id });
+
+      if (p.issue.isMachine && p.issue.machineLabel) {
+        const matchedEq = (
+          await tx
+            .select()
+            .from(equipment)
+            .where(
+              and(
+                ilike(equipment.assetCode, p.issue.machineLabel),
+                isNull(equipment.archivedAt),
+              ),
+            )
+            .limit(1)
+        )[0];
+
+        if (matchedEq) {
+          await tx.insert(equipmentFaults).values({
+            equipmentId: matchedEq.id,
+            lessonIssueId: insertedIssue.id,
+            reportedAt: p.date,
+            problem: p.issue.description,
+            reportedBy: me.fullName,
+            status: "open",
+            createdBy: me.id,
+            updatedBy: me.id,
+          });
+          if (matchedEq.status === "working") {
+            await tx
+              .update(equipment)
+              .set({
+                status: "needs_repair",
+                updatedAt: new Date(),
+                updatedBy: me.id,
+              })
+              .where(eq(equipment.id, matchedEq.id));
+          }
+        }
+      }
+    }
 
     await logActivity({
       actorId: me.id,
@@ -137,6 +181,8 @@ export async function createLessonLog(
 
   revalidatePath("/teacher/log");
   revalidatePath("/admin/lessons");
+  revalidatePath("/admin/equipment");
+  revalidatePath("/store/equipment");
   redirect("/teacher/log");
 }
 

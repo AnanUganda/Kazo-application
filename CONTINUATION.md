@@ -1,7 +1,7 @@
 # Kazo Technical School — Staff Dashboard · Continuation Brief
 
 > Handoff document so any developer or AI coding agent can continue this build.
-> Last updated after **Phase 5** + preview harness. Read this top-to-bottom
+> Last updated after **Phase 6** + preview harness. Read this top-to-bottom
 > before writing code.
 
 ---
@@ -9,8 +9,8 @@
 ## 0. How to use this document
 
 This project is being built in **strict phases (0–8), one at a time**, each on
-its own branch, with a stop-and-report after every phase. Phases 0–5 are done.
-**Next up is Phase 6.** Follow the process and conventions below exactly — they
+its own branch, with a stop-and-report after every phase. Phases 0–6 are done.
+**Next up is Phase 7.** Follow the process and conventions below exactly — they
 are locked decisions, not suggestions.
 
 ---
@@ -45,18 +45,19 @@ are locked decisions, not suggestions.
 | 4 | Syllabus plan + lesson logs (attendance, progress, issues, 7-day edit, timeline, history) | ✅ built |
 | — | **Preview harness** (in-memory pglite + sample data, no sign-in) | ✅ built (dev-only) |
 | 5 | Students, fees, attendance | ✅ built |
-| 6 | Inventory (consumables + equipment + faults) | ⬜ **next** |
-| 7 | Home summaries + CSV exports | ⬜ |
+| 6 | Inventory (consumables + equipment + faults) | ✅ built |
+| 7 | Home summaries + CSV exports | ⬜ **next** |
 | 8 | Hardening + README + HANDOVER.md | ⬜ |
 
 **Verified so far:** `typecheck`, `lint`, and `build` pass on every phase;
-migrations 0000–0003 generated; and the preview harness has run all migrations
+migrations 0000–0004 generated; and the preview harness has run all migrations
 and queries against a **real Postgres engine** (pglite) with seeded data — the
-fee ledger (with a reversal), attendance from absences, and track-status all
-compute correctly.
+fee ledger (with a reversal), attendance from absences, track-status, derived
+stock levels from movements, and two-way equipment/fault logs all compute
+correctly.
 
 **NOT done yet:** connecting the real Supabase project, running migrations/seed
-against it, any deploy, the Netlify/GitHub setup, and Phases 5–8.
+against it, any deploy, the Netlify/GitHub setup, and Phases 7–8.
 
 ---
 
@@ -66,9 +67,9 @@ against it, any deploy, the Netlify/GitHub setup, and Phases 5–8.
 app/
   (auth)/sign-in/        sign-in page + server action (Supabase signInWithPassword)
   (app)/                 authenticated area (requireStaff in layout)
-    admin/ applications/ intakes/ lessons/ settings/ staff/ students/ syllabus/
+    admin/ applications/ equipment/ intakes/ inventory/ lessons/ settings/ staff/ students/ syllabus/
     teacher/ log/ students/ syllabus/
-    store/
+    store/ consumables/ equipment/
     lessons/[id]/edit/   shared lesson-log edit (admin any; teacher own ≤7 days)
   apply/                 PUBLIC application form (no auth)
   api/applications/      PUBLIC POST endpoint (honeypot + rate limit)
@@ -77,18 +78,21 @@ app/
 components/
   shell/                 AppShell (sidebar/drawer), nav.ts, icons, Logo
   students/              StudentListView, StudentProfileView (role-aware; fees Admin-only)
+  inventory/             ConsumablesView, ConsumablesControls, EquipmentView, EquipmentControls
   syllabus/SyllabusTimeline.tsx
 lib/
   db/schema.ts           ALL Drizzle tables (single source of truth)
   db/index.ts            getDb() — postgres-js (or pglite in preview)
-  db/migrations/         generated SQL (0000–0003) — DO NOT hand-edit
+  db/migrations/         generated SQL (0000–0004) — DO NOT hand-edit
   db/preview.ts          in-memory pglite + sample seed (dev-only)
   auth/supabase/         server.ts (cookie client) + admin.ts (service role)
   auth/session.ts        getSessionStaff / requireStaff
   permissions.ts         requireRole(...) + homePathForRole
   ledger.ts              pure ledgerBalance()
   attendance.ts          pure computeAttendance()
+  inventory.ts           pure computeStockLevel() / isLowStock() / computeAdjustmentDelta()
   students-data.ts       student list + profile loaders (skips fee queries for Teacher)
+  inventory-data.ts      consumables + equipment register + fault log loaders
   track-status.ts        pure syllabus status maths
   format.ts, fees.ts, intake.ts, activity.ts, preview.ts, preview-actions.ts
 scripts/seed-admin.ts    first admin (Supabase admin API + staff row)
@@ -102,16 +106,16 @@ drizzle.config.ts, netlify.toml, tailwind.config.ts
 ## 4. Branches & how to continue
 
 Branches are stacked (each built on the previous). The **tip with everything**
-is **`phase-5-students-fees`** (contains Phases 1–5 + Supabase switch + preview).
+is **`phase-6-inventory`** (contains Phases 1–6 + Supabase switch + preview).
 
 ```
 phase-1-foundation → phase-2-settings-intakes → switch-to-supabase
   → phase-3-applications → phase-4-syllabus-lessons → preview-harness
-  → phase-5-students-fees (TIP)
+  → phase-5-students-fees → phase-6-inventory (TIP)
 ```
 
 - There is **no `main`** yet, and nothing has been merged or deployed.
-- **Start Phase 6 from the tip:** `git checkout phase-5-students-fees && git checkout -b phase-6-inventory`.
+- **Start Phase 7 from the tip:** `git checkout phase-6-inventory && git checkout -b phase-7-summaries-exports`.
   (Keeping the preview harness in the lineage means you can keep demoing new
   phases with no database.)
 - **Do NOT** merge to main or deploy to production without the owner's approval.

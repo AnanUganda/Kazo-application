@@ -4,6 +4,7 @@ import { getDb } from "@/lib/db";
 import {
   applications,
   appSettings,
+  equipment,
   feeCharges,
   feeTypes,
   intakes,
@@ -13,6 +14,7 @@ import {
   staff,
   students,
   type Application,
+  type Equipment,
   type FeeCharge,
   type Intake,
   type LessonSession,
@@ -69,6 +71,7 @@ export type StudentProfileData = {
   attendance: AttendanceSummary;
   absences: StudentAbsenceRecord[];
   application: Application | null;
+  assignedEquipment: Equipment[];
   /** Strictly null when loaded for a non-admin role. */
   fees: StudentFeesProfile | null;
 };
@@ -287,6 +290,19 @@ export async function loadStudentProfile(
       notes: l.notes,
     }));
 
+  const eqFilter = student.booth
+    ? or(
+        eq(equipment.assignedStudentId, student.id),
+        eq(equipment.booth, student.booth),
+      )!
+    : eq(equipment.assignedStudentId, student.id);
+
+  const assignedEquipment = await db
+    .select()
+    .from(equipment)
+    .where(and(eqFilter, isNull(equipment.archivedAt)))
+    .orderBy(asc(equipment.assetCode));
+
   let fees: StudentFeesProfile | null = null;
   if (options.includeFees) {
     const catalogueRows = await db
@@ -397,6 +413,7 @@ export async function loadStudentProfile(
     attendance,
     absences,
     application,
+    assignedEquipment,
     fees,
   };
 }

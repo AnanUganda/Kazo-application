@@ -40,8 +40,16 @@ export function StudentProfileView({
   showFees: boolean;
   isAdmin: boolean;
 }) {
-  const { student, intake, threshold, attendance, absences, application, fees } =
-    data;
+  const {
+    student,
+    intake,
+    threshold,
+    attendance,
+    absences,
+    application,
+    assignedEquipment,
+    fees,
+  } = data;
   const canEdit = isAdmin && intake.status === "active";
   const today = todayKampala();
 
@@ -184,9 +192,63 @@ export function StudentProfileView({
             </div>
             <div className="border-t border-neutral-100 pt-3">
               <dt className="text-xs text-neutral-400">Assigned machine</dt>
-              <dd className="mt-0.5 text-xs text-neutral-500">
-                Linked two-way with the Equipment register (Phase 6).
-              </dd>
+              {assignedEquipment.length === 0 ? (
+                <dd className="mt-1 text-xs text-neutral-400">
+                  No machine assigned yet.
+                  {isAdmin && (
+                    <Link
+                      href="/admin/equipment"
+                      className="ml-1 font-semibold text-brand hover:underline"
+                    >
+                      Assign in Equipment →
+                    </Link>
+                  )}
+                </dd>
+              ) : (
+                <dd className="mt-1.5 space-y-2">
+                  {assignedEquipment.map((eqItem) => {
+                    const statusBadge =
+                      eqItem.status === "working" ? (
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                          Working
+                        </span>
+                      ) : eqItem.status === "needs_repair" ? (
+                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                          Needs repair
+                        </span>
+                      ) : (
+                        <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">
+                          Out of service
+                        </span>
+                      );
+                    return (
+                      <div
+                        key={eqItem.id}
+                        className="rounded-xl border border-neutral-200 bg-neutral-50 p-2.5 text-xs"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-neutral-900">
+                            {eqItem.assetCode}
+                          </span>
+                          {statusBadge}
+                        </div>
+                        <div className="mt-0.5 text-neutral-600">
+                          {eqItem.type}
+                          {eqItem.makeModel ? ` · ${eqItem.makeModel}` : ""}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {isAdmin && (
+                    <Link
+                      href="/admin/equipment"
+                      className="inline-block text-xs font-semibold text-brand hover:underline"
+                    >
+                      Manage in Equipment →
+                    </Link>
+                  )}
+                </dd>
+              )}
             </div>
           </dl>
         </section>

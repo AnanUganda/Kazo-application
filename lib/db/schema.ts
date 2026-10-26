@@ -420,3 +420,133 @@ export type TopicType = (typeof topicType.enumValues)[number];
 export type LessonLog = typeof lessonLogs.$inferSelect;
 export type LessonSession = (typeof lessonSession.enumValues)[number];
 export type LessonIssue = typeof lessonIssues.$inferSelect;
+
+/* ------------------------------------------------------------------ *
+ * Phase 6: inventory (consumables + stock movements) and equipment
+ * register + fault log (linked with lesson_issues and students).
+ * ------------------------------------------------------------------ */
+
+export const consumableCategory = pgEnum("consumable_category", [
+  "electrodes",
+  "discs",
+  "steel",
+  "gas",
+  "other",
+]);
+
+export const consumableUnit = pgEnum("consumable_unit", [
+  "box",
+  "piece",
+  "kg",
+  "length",
+  "cylinder",
+]);
+
+export const stockMovementType = pgEnum("stock_movement_type", [
+  "in",
+  "out",
+  "adjustment",
+]);
+
+export const stockOutPurpose = pgEnum("stock_out_purpose", [
+  "class_practice",
+  "workshop_job",
+  "other",
+]);
+
+export const stockAdjustmentReason = pgEnum("stock_adjustment_reason", [
+  "damaged",
+  "lost",
+  "miscounted",
+]);
+
+export const equipmentStatus = pgEnum("equipment_status", [
+  "working",
+  "needs_repair",
+  "out_of_service",
+]);
+
+/**
+ * Consumables catalogue. Current stock level is NEVER stored here — it is
+ * always computed by summing `stock_movements.quantity_delta`.
+ */
+export const consumables = pgTable("consumables", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  category: consumableCategory("category").notNull(),
+  unit: consumableUnit("unit").notNull(),
+  reorderLevel: integer("reorder_level").notNull().default(0),
+  ...auditColumns(),
+});
+
+/**
+ * Append-only stock movements (in, out, physical count adjustment).
+ * `quantity_delta` is positive for stock-in, negative for stock-out, and
+ * signed (`physical_count - previous_stock`) for adjustments.
+ */
+export const stockMovements = pgTable("stock_movements", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  consumableId: uuid("consumable_id")
+    .notNull()
+    .references(() => consumables.id),
+  type: stockMovementType("type").notNull(),
+  date: date("date").notNull(),
+  quantityDelta: integer("quantity_delta").notNull(),
+  supplier: text("supplier"),
+  cost: integer("cost"),
+  receivedBy: text("received_by"),
+  purpose: stockOutPurpose("purpose"),
+  takenBy: text("taken_by"),
+  adjustmentReason: stockAdjustmentReason("adjustment_reason"),
+  physicalCount: integer("physical_count"),
+  notes: text("notes"),
+  ...auditColumns(),
+});
+
+/**
+ * Equipment register. Assigned to a booth and optionally a student (linked
+ * both ways with the student profile).
+ */
+export const equipment = pgTable("equipment", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  assetCode: text("asset_code").notNull().unique(),
+  type: text("type").notNull(),
+  makeModel: text("make_model"),
+  status: equipmentStatus("status").notNull().default("working"),
+  booth: text("booth"),
+  assignedStudentId: uuid("assigned_student_id").references(() => students.id),
+  notes: text("notes"),
+  ...auditColumns(),
+});
+
+/**
+ * Equipment fault log. Fault reports originate from lesson-log machine issues
+ * (`lesson_issue_id`) or are logged directly by the store keeper / admin.
+ */
+export const equipmentFaults = pgTable("equipment_faults", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  equipmentId: uuid("equipment_id")
+    .notNull()
+    .references(() => equipment.id),
+  lessonIssueId: uuid("lesson_issue_id").references(() => lessonIssues.id),
+  reportedAt: date("reported_at").notNull(),
+  problem: text("problem").notNull(),
+  reportedBy: text("reported_by").notNull(),
+  status: issueStatus("status").notNull().default("open"),
+  fix: text("fix"),
+  fixedAt: date("fixed_at"),
+  cost: integer("cost"),
+  ...auditColumns(),
+});
+
+export type Consumable = typeof consumables.$inferSelect;
+export type ConsumableCategory = (typeof consumableCategory.enumValues)[number];
+export type ConsumableUnit = (typeof consumableUnit.enumValues)[number];
+export type StockMovement = typeof stockMovements.$inferSelect;
+export type StockMovementType = (typeof stockMovementType.enumValues)[number];
+export type StockOutPurpose = (typeof stockOutPurpose.enumValues)[number];
+export type StockAdjustmentReason =
+  (typeof stockAdjustmentReason.enumValues)[number];
+export type Equipment = typeof equipment.$inferSelect;
+export type EquipmentStatus = (typeof equipmentStatus.enumValues)[number];
+export type EquipmentFault = typeof equipmentFaults.$inferSelect;

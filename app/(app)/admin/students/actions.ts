@@ -5,6 +5,7 @@ import { and, eq, isNull, or } from "drizzle-orm";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
 import {
+  equipment,
   feeCharges,
   feeTypes,
   intakes,
@@ -96,6 +97,8 @@ function revalidateStudentPaths(studentId: string) {
   revalidatePath(`/admin/students/${studentId}`);
   revalidatePath("/teacher/students");
   revalidatePath(`/teacher/students/${studentId}`);
+  revalidatePath("/admin/equipment");
+  revalidatePath("/store/equipment");
 }
 
 /** Change student status (Active / Suspended / Dropped out). */
@@ -174,22 +177,39 @@ export async function updateStudentDetails(
   const { student, error } = await loadEditableStudent(studentId);
   if (!student) return { ok: false, error: error ?? "Student not found.", values };
 
-  await getDb()
-    .update(students)
-    .set({
-      fullName: values.fullName,
-      phone: values.phone,
-      email: values.email || null,
-      dob: values.dob || null,
-      location: values.location || null,
-      booth: values.booth || null,
-      nextOfKinName: values.nextOfKinName || null,
-      nextOfKinPhone: values.nextOfKinPhone || null,
-      nextOfKinRelationship: values.nextOfKinRelationship || null,
-      updatedAt: new Date(),
-      updatedBy: admin.id,
-    })
-    .where(eq(students.id, studentId));
+  const db = getDb();
+  await db.transaction(async (tx) => {
+    await tx
+      .update(students)
+      .set({
+        fullName: values.fullName!,
+        phone: values.phone!,
+        email: values.email || null,
+        dob: values.dob || null,
+        location: values.location || null,
+        booth: values.booth || null,
+        nextOfKinName: values.nextOfKinName || null,
+        nextOfKinPhone: values.nextOfKinPhone || null,
+        nextOfKinRelationship: values.nextOfKinRelationship || null,
+        updatedAt: new Date(),
+        updatedBy: admin.id,
+      })
+      .where(eq(students.id, studentId));
+
+    await tx
+      .update(equipment)
+      .set({
+        booth: values.booth || null,
+        updatedAt: new Date(),
+        updatedBy: admin.id,
+      })
+      .where(
+        and(
+          eq(equipment.assignedStudentId, studentId),
+          isNull(equipment.archivedAt),
+        ),
+      );
+  });
 
   await logActivity({
     actorId: admin.id,
