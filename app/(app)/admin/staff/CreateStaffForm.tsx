@@ -97,7 +97,7 @@ export function CreateStaffForm() {
           className="field-input"
           autoComplete="new-password"
         />
-        <p className="mt-1 text-xs text-neutral-400">
+        <p className="mt-1 text-xs text-neutral-500">
           At least 8 characters. Share it with the staff member privately.
         </p>
       </div>

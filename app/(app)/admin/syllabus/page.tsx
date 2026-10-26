@@ -23,7 +23,7 @@ function EditTopic({ topic }: { topic: SyllabusTopic }) {
         <span className="truncate font-medium text-neutral-800">
           {topic.title}
         </span>
-        <span className="shrink-0 text-xs text-neutral-400">
+        <span className="shrink-0 text-xs text-neutral-500">
           Wk {topic.targetWeek} · {topic.type === "theory" ? "Theory" : "Practical"}
         </span>
       </summary>
@@ -167,7 +167,7 @@ export default async function SyllabusPage() {
                   Semester {sem} topics
                 </h2>
                 {semTopics.length === 0 ? (
-                  <p className="text-sm text-neutral-400">No topics yet.</p>
+                  <p className="text-sm text-neutral-500">No topics yet.</p>
                 ) : (
                   <div className="space-y-2">
                     {semTopics.map((t) => (

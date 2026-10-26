@@ -121,7 +121,7 @@ export default async function AdminLessonsPage({
 
       <div className="space-y-2">
         {logs.length === 0 ? (
-          <div className="card text-sm text-neutral-400">No lesson logs found.</div>
+          <div className="card text-sm text-neutral-500">No lesson logs found.</div>
         ) : (
           logs.map((log) => (
             <Link
@@ -134,7 +134,7 @@ export default async function AdminLessonsPage({
                   {formatDate(log.date)} ·{" "}
                   <span className="capitalize">{log.session}</span>
                 </div>
-                <div className="truncate text-xs text-neutral-400">
+                <div className="truncate text-xs text-neutral-500">
                   {log.teacherName}
                   {log.notes ? ` · ${log.notes}` : ""}
                 </div>

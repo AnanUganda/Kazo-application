@@ -91,7 +91,7 @@ export function LessonLogForm({
           Topics covered
         </h3>
         {topics.length === 0 ? (
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-500">
             No syllabus topics yet. Ask an admin to build the plan.
           </p>
         ) : (
@@ -100,7 +100,7 @@ export function LessonLogForm({
               <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap sm:gap-3">
                 <div className="min-w-0 flex-1 text-sm">
                   <span className="text-neutral-800">{t.title}</span>
-                  <span className="ml-1 text-xs text-neutral-400">
+                  <span className="ml-1 text-xs text-neutral-500">
                     (S{t.semester} · {t.type === "theory" ? "Theory" : "Practical"})
                   </span>
                 </div>
@@ -132,7 +132,7 @@ export function LessonLogForm({
           Everyone is present by default. Tap anyone who was absent.
         </p>
         {students.length === 0 ? (
-          <p className="text-sm text-neutral-400">No active students in this intake.</p>
+          <p className="text-sm text-neutral-500">No active students in this intake.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {students.map((s) => (

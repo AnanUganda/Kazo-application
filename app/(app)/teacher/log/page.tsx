@@ -79,7 +79,7 @@ export default async function LogLessonPage() {
           </h2>
           <div className="space-y-2">
             {myLogs.length === 0 ? (
-              <div className="card text-sm text-neutral-400">No logs yet.</div>
+              <div className="card text-sm text-neutral-500">No logs yet.</div>
             ) : (
               myLogs.map((log) => (
                 <Link
@@ -91,7 +91,7 @@ export default async function LogLessonPage() {
                     <div className="text-sm font-medium text-neutral-800">
                       {formatDate(log.date)}
                     </div>
-                    <div className="text-xs capitalize text-neutral-400">
+                    <div className="text-xs capitalize text-neutral-500">
                       {log.session}
                     </div>
                   </div>

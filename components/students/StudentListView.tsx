@@ -34,7 +34,7 @@ export function AttendanceBadge({
   threshold: number;
 }) {
   if (rate === null) {
-    return <span className="text-xs text-neutral-400">No sessions yet</span>;
+    return <span className="text-xs text-neutral-500">No sessions yet</span>;
   }
   if (belowThreshold) {
     return (
@@ -229,18 +229,18 @@ export function StudentListView({
                 </div>
 
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-neutral-700 md:mt-0 md:block">
-                  <span className="text-xs text-neutral-400 md:hidden">
+                  <span className="text-xs text-neutral-500 md:hidden">
                     Booth:
                   </span>
                   <span className="font-medium text-neutral-800">
                     {student.booth || (
-                      <span className="text-neutral-400">Unassigned</span>
+                      <span className="text-neutral-500">Unassigned</span>
                     )}
                   </span>
                 </div>
 
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:mt-0 md:block">
-                  <span className="text-xs text-neutral-400 md:hidden">
+                  <span className="text-xs text-neutral-500 md:hidden">
                     Attendance:
                   </span>
                   <AttendanceBadge
@@ -252,11 +252,11 @@ export function StudentListView({
 
                 {showFees && fees !== null && (
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:mt-0 md:block">
-                    <span className="text-xs text-neutral-400 md:hidden">
+                    <span className="text-xs text-neutral-500 md:hidden">
                       Fee balance:
                     </span>
                     {fees.totalDue === 0 && fees.paid === 0 ? (
-                      <span className="text-xs text-neutral-400">
+                      <span className="text-xs text-neutral-500">
                         Not billed yet
                       </span>
                     ) : fees.balance <= 0 ? (
@@ -288,7 +288,7 @@ export function StudentListView({
           </summary>
           <div className="space-y-2 border-t border-neutral-100 p-4">
             {droppedOutItems.length === 0 ? (
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-neutral-500">
                 No dropped-out students in this intake.
               </p>
             ) : (
@@ -306,7 +306,7 @@ export function StudentListView({
                       {student.phone}
                     </span>
                     {student.booth && (
-                      <span className="ml-2 text-xs text-neutral-400">
+                      <span className="ml-2 text-xs text-neutral-500">
                         · {student.booth}
                       </span>
                     )}

@@ -211,7 +211,7 @@ export function ConsumablesView({
                   </div>
 
                   <div className="text-right">
-                    <div className="text-xs text-neutral-400">In stock</div>
+                    <div className="text-xs text-neutral-500">In stock</div>
                     <div
                       className={`text-xl font-bold ${
                         lowStock ? "text-amber-700" : "text-neutral-900"
@@ -247,7 +247,7 @@ export function ConsumablesView({
                   </summary>
                   <div className="space-y-1.5 border-t border-neutral-100 p-3 text-xs">
                     {movements.length === 0 ? (
-                      <p className="text-neutral-400">No stock movements yet.</p>
+                      <p className="text-neutral-500">No stock movements yet.</p>
                     ) : (
                       movements.slice(0, 20).map((m) => {
                         const sign = m.quantityDelta > 0 ? "+" : "";
@@ -295,7 +295,7 @@ export function ConsumablesView({
                                 </span>
                               )}
                             </div>
-                            <span className="text-neutral-400">
+                            <span className="text-neutral-500">
                               {formatDate(m.date)}
                             </span>
                           </div>

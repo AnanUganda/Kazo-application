@@ -102,11 +102,11 @@ export function SyllabusTimeline({
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-neutral-900">
                 {sem.title}
-                <span className="ml-2 font-normal text-neutral-400">
+                <span className="ml-2 font-normal text-neutral-500">
                   {sem.subtitle}
                 </span>
               </h3>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-500">
                 {currentWeek === null
                   ? "Not started yet"
                   : `Week ${currentWeek} of ${totalWeeks}`}
@@ -123,7 +123,7 @@ export function SyllabusTimeline({
             </div>
 
             {total === 0 ? (
-              <p className="text-sm text-neutral-400">No topics in this semester.</p>
+              <p className="text-sm text-neutral-500">No topics in this semester.</p>
             ) : (
               <ul className="divide-y divide-neutral-100">
                 {semTopics.map((t) => {
@@ -148,7 +148,7 @@ export function SyllabusTimeline({
                             {t.description}
                           </div>
                         )}
-                        <div className="mt-0.5 text-xs text-neutral-400">
+                        <div className="mt-0.5 text-xs text-neutral-500">
                           Week {t.targetWeek} ·{" "}
                           {t.type === "theory" ? "Theory" : "Practical"}
                         </div>

@@ -79,7 +79,7 @@ export default async function IntakesPage() {
               </button>
             </form>
           </div>
-          <p className="mt-4 text-xs text-neutral-400">
+          <p className="mt-4 text-xs text-neutral-500">
             Closing cannot be undone. The intake and its students and syllabus
             progress stay readable but locked.
           </p>

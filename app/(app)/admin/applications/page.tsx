@@ -35,7 +35,7 @@ function ApplicationCard({ app }: { app: Application }) {
     <div className="card p-4">
       <div className="font-semibold text-neutral-900">{app.fullName}</div>
       <div className="text-sm text-neutral-500">{app.phone}</div>
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400">
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
         <span>Applied {formatDate(app.createdAt)}</span>
         <span
           className={`inline-flex items-center gap-1 ${
@@ -177,7 +177,7 @@ export default async function ApplicationsPage({
                 </span>
               </div>
               {items.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-400">
+                <p className="rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-500">
                   None
                 </p>
               ) : (
@@ -195,7 +195,7 @@ export default async function ApplicationsPage({
         </summary>
         <div className="space-y-2 border-t border-neutral-100 p-4">
           {exits.length === 0 ? (
-            <p className="text-sm text-neutral-400">No exited applications.</p>
+            <p className="text-sm text-neutral-500">No exited applications.</p>
           ) : (
             exits.map((app) => (
               <div
@@ -210,7 +210,7 @@ export default async function ApplicationsPage({
                     {app.phone}
                   </span>
                   {app.stage === "withdrew" && app.withdrewReason && (
-                    <span className="ml-2 text-xs text-neutral-400">
+                    <span className="ml-2 text-xs text-neutral-500">
                       · {app.withdrewReason}
                     </span>
                   )}

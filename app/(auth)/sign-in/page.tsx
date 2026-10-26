@@ -19,7 +19,7 @@ export default function SignInPage() {
         </p>
         <SignInForm />
       </div>
-      <p className="mt-6 text-center text-xs text-neutral-400">
+      <p className="mt-6 text-center text-xs text-neutral-500">
         Kazo Technical School · Staff access only
       </p>
     </main>

@@ -32,6 +32,33 @@ body {
     @apply mb-1 block text-sm font-medium text-neutral-700;
   }
   .field-input {
-    @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand;
+    @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand;
+  }
+}
+
+/* Accessibility: a visible keyboard-focus ring on every interactive element.
+   .btn-* already set their own ring (via focus:outline-none), so they are not
+   doubled up here. */
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #710014;
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

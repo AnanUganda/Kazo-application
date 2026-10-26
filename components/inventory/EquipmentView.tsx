@@ -306,7 +306,7 @@ export function EquipmentView({
                             </span>
                           )
                         ) : (
-                          <span className="text-neutral-400">Unassigned</span>
+                          <span className="text-neutral-500">Unassigned</span>
                         )}
                       </div>
                     </div>
@@ -336,11 +336,11 @@ export function EquipmentView({
 
                   {/* Fault log */}
                   <div className="space-y-2 border-t border-neutral-100 pt-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                       Fault log ({faults.length})
                     </div>
                     {faults.length === 0 ? (
-                      <p className="text-xs text-neutral-400">
+                      <p className="text-xs text-neutral-500">
                         No faults logged for this asset.
                       </p>
                     ) : (

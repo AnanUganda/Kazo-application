@@ -250,7 +250,7 @@ export default async function StoreHome() {
                     </span>
                   </div>
                   <p className="text-xs text-neutral-700">{f.problem}</p>
-                  <p className="text-[11px] text-neutral-400">
+                  <p className="text-[11px] text-neutral-500">
                     Reported by {f.reportedBy}
                     {f.fromLessonLog ? " · From lesson log" : ""}
                   </p>

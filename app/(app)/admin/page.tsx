@@ -440,7 +440,7 @@ export default async function AdminHome() {
                     >
                       {formatUGX(fees?.balance ?? 0)}
                     </Link>
-                    <div className="text-[11px] text-neutral-400">
+                    <div className="text-[11px] text-neutral-500">
                       Paid {formatUGX(fees?.paid ?? 0)} of{" "}
                       {formatUGX(fees?.totalDue ?? 0)}
                     </div>
