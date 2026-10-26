@@ -16,7 +16,11 @@ import {
 import { logActivity } from "@/lib/activity";
 import { parseAmountToInt, todayKampala } from "@/lib/format";
 
-export type ActionState = { ok: boolean; error?: string };
+export type ActionState = {
+  ok: boolean;
+  error?: string;
+  values?: Record<string, string>;
+};
 
 const REGISTRATION_FALLBACK = 35_000;
 
@@ -37,25 +41,31 @@ export async function moveToRegistered(
   const admin = await requireRole("admin");
 
   const id = String(formData.get("applicationId") ?? "");
-  const amount = parseAmountToInt(String(formData.get("amount") ?? ""));
+  const rawAmount = String(formData.get("amount") ?? "");
+  const amount = parseAmountToInt(rawAmount);
   const method = String(formData.get("method") ?? "");
   const reference = String(formData.get("reference") ?? "").trim();
   const confirmedBy = String(formData.get("confirmedBy") ?? "").trim();
+  const values = { amount: rawAmount, method, reference, confirmedBy };
 
-  if (!id) return { ok: false, error: "Missing application." };
+  if (!id) return { ok: false, error: "Missing application.", values };
   if (amount === null || amount <= 0)
-    return { ok: false, error: "Enter the amount paid." };
+    return { ok: false, error: "Enter the amount paid.", values };
   if (!["mtn", "airtel", "cash"].includes(method))
-    return { ok: false, error: "Choose a payment method." };
+    return { ok: false, error: "Choose a payment method.", values };
   if (!reference)
-    return { ok: false, error: "Enter the transaction or receipt reference." };
+    return { ok: false, error: "Enter the transaction or receipt reference.", values };
   if (!confirmedBy)
-    return { ok: false, error: "Enter who confirmed the payment." };
+    return { ok: false, error: "Enter who confirmed the payment.", values };
 
   const app = await loadApplication(id);
-  if (!app) return { ok: false, error: "Application not found." };
+  if (!app) return { ok: false, error: "Application not found.", values };
   if (app.stage !== "applied_unpaid")
-    return { ok: false, error: "This application is no longer awaiting registration." };
+    return {
+      ok: false,
+      error: "This application is no longer awaiting registration.",
+      values,
+    };
 
   const regFee =
     (
@@ -143,17 +153,22 @@ export async function moveToTestInterview(
   const testDate = String(formData.get("testDate") ?? "");
   const result = String(formData.get("testResult") ?? "");
   const notes = String(formData.get("interviewNotes") ?? "").trim();
+  const values = { testDate, testResult: result, interviewNotes: notes };
 
-  if (!id) return { ok: false, error: "Missing application." };
+  if (!id) return { ok: false, error: "Missing application.", values };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(testDate))
-    return { ok: false, error: "Enter the test/interview date." };
+    return { ok: false, error: "Enter the test/interview date.", values };
   if (!["pass", "fail"].includes(result))
-    return { ok: false, error: "Choose pass or fail." };
+    return { ok: false, error: "Choose pass or fail.", values };
 
   const app = await loadApplication(id);
-  if (!app) return { ok: false, error: "Application not found." };
+  if (!app) return { ok: false, error: "Application not found.", values };
   if (app.stage !== "registered")
-    return { ok: false, error: "This application is not at the registered stage." };
+    return {
+      ok: false,
+      error: "This application is not at the registered stage.",
+      values,
+    };
 
   await getDb()
     .update(applications)
@@ -312,13 +327,19 @@ export async function markWithdrew(
   const admin = await requireRole("admin");
   const id = String(formData.get("applicationId") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
-  if (!id) return { ok: false, error: "Missing application." };
-  if (!reason) return { ok: false, error: "A reason is required to withdraw." };
+  const values = { reason };
+  if (!id) return { ok: false, error: "Missing application.", values };
+  if (!reason)
+    return { ok: false, error: "A reason is required to withdraw.", values };
 
   const app = await loadApplication(id);
-  if (!app) return { ok: false, error: "Application not found." };
+  if (!app) return { ok: false, error: "Application not found.", values };
   if (["enrolled", "not_accepted", "withdrew"].includes(app.stage))
-    return { ok: false, error: "This application can no longer be changed." };
+    return {
+      ok: false,
+      error: "This application can no longer be changed.",
+      values,
+    };
 
   await getDb()
     .update(applications)

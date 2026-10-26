@@ -55,11 +55,15 @@ export function AppShell({
   const pathname = usePathname();
   const items = navForRole(role);
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => {
+    if (href === "/admin" || href === "/teacher" || href === "/store") {
+      return pathname === href;
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   const nav = (
-    <nav className="flex flex-1 flex-col gap-1 px-3">
+    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
       {items.map((item) =>
         item.implemented ? (
           <Link

@@ -6,7 +6,7 @@ import { createServerClient } from "@supabase/ssr";
  * authorization decisions — those happen in server components / actions via
  * requireStaff / requireRole.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Preview mode bypasses Supabase entirely.
   if (process.env.PREVIEW_MODE === "1") {
     return NextResponse.next({ request });

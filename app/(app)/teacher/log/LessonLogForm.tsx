@@ -46,8 +46,9 @@ export function LessonLogForm({
   submitLabel?: string;
 }) {
   const [state, formAction] = useActionState(action, initialState);
-  const progress = initial?.progress ?? {};
-  const absentSet = new Set(initial?.absentIds ?? []);
+  const v = state.values ?? initial;
+  const progress = v?.progress ?? {};
+  const absentSet = new Set(v?.absentIds ?? []);
 
   return (
     <form action={formAction} className="space-y-6">
@@ -71,13 +72,13 @@ export function LessonLogForm({
             id="date"
             name="date"
             type="date"
-            defaultValue={initial?.date ?? todayISO()}
+            defaultValue={v?.date ?? todayISO()}
             className="field-input"
           />
         </div>
         <div>
           <label htmlFor="session" className="field-label">Session</label>
-          <select id="session" name="session" defaultValue={initial?.session ?? "morning"} className="field-input">
+          <select id="session" name="session" defaultValue={v?.session ?? "morning"} className="field-input">
             <option value="morning">Morning</option>
             <option value="afternoon">Afternoon</option>
           </select>
@@ -96,8 +97,8 @@ export function LessonLogForm({
         ) : (
           <div className="space-y-2">
             {topics.map((t) => (
-              <div key={t.id} className="flex items-center justify-between gap-3">
-                <div className="min-w-0 text-sm">
+              <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap sm:gap-3">
+                <div className="min-w-0 flex-1 text-sm">
                   <span className="text-neutral-800">{t.title}</span>
                   <span className="ml-1 text-xs text-neutral-400">
                     (S{t.semester} · {t.type === "theory" ? "Theory" : "Practical"})
@@ -106,7 +107,7 @@ export function LessonLogForm({
                 <select
                   name={`topic_${t.id}`}
                   defaultValue={progress[t.id] ?? "none"}
-                  className="field-input w-36 py-1.5"
+                  className="field-input w-full py-1.5 sm:w-36"
                 >
                   <option value="none">—</option>
                   <option value="started">Started</option>
@@ -121,7 +122,7 @@ export function LessonLogForm({
       {/* Notes */}
       <div>
         <label htmlFor="notes" className="field-label">Notes</label>
-        <textarea id="notes" name="notes" rows={2} defaultValue={initial?.notes} className="field-input" />
+        <textarea id="notes" name="notes" rows={2} defaultValue={v?.notes} className="field-input" />
       </div>
 
       {/* Attendance */}
@@ -161,14 +162,14 @@ export function LessonLogForm({
             name="issueDescription"
             rows={2}
             placeholder="What went wrong?"
-            defaultValue={initial?.issue?.description}
+            defaultValue={v?.issue?.description}
             className="field-input"
           />
           <label className="flex items-center gap-2 text-sm text-neutral-700">
             <input
               type="checkbox"
               name="issueMachine"
-              defaultChecked={initial?.issue?.isMachine}
+              defaultChecked={v?.issue?.isMachine}
               className="h-4 w-4 rounded border-neutral-300"
             />
             This is a machine issue (sends a fault report to the store keeper)
@@ -176,7 +177,7 @@ export function LessonLogForm({
           <input
             name="issueMachineLabel"
             placeholder="Machine / booth (e.g. KTS-WM-07)"
-            defaultValue={initial?.issue?.machineLabel ?? ""}
+            defaultValue={v?.issue?.machineLabel ?? ""}
             className="field-input"
           />
         </div>

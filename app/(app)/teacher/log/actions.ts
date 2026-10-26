@@ -18,7 +18,22 @@ import { getActiveIntake } from "@/lib/intake";
 import { logActivity } from "@/lib/activity";
 import { daysSince } from "@/lib/format";
 
-export type ActionState = { ok: boolean; error?: string };
+export type ActionState = {
+  ok: boolean;
+  error?: string;
+  values?: {
+    date?: string;
+    session?: "morning" | "afternoon";
+    notes?: string;
+    progress?: Record<string, "started" | "completed">;
+    absentIds?: string[];
+    issue?: {
+      description: string;
+      isMachine: boolean;
+      machineLabel?: string | null;
+    };
+  };
+};
 
 const EDIT_WINDOW_DAYS = 7;
 
@@ -31,6 +46,21 @@ type Parsed = {
   issue: { description: string; isMachine: boolean; machineLabel: string | null } | null;
   error?: string;
 };
+
+function toValues(p: Parsed): NonNullable<ActionState["values"]> {
+  const progressMap: Record<string, "started" | "completed"> = {};
+  for (const pr of p.progress) {
+    progressMap[pr.topicId] = pr.status;
+  }
+  return {
+    date: p.date,
+    session: p.session,
+    notes: p.notes ?? "",
+    progress: progressMap,
+    absentIds: p.absentIds,
+    issue: p.issue ?? undefined,
+  };
+}
 
 function parseForm(formData: FormData): Parsed {
   const date = String(formData.get("date") ?? "");
@@ -45,10 +75,6 @@ function parseForm(formData: FormData): Parsed {
     absentIds: [],
     issue: null,
   };
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ...base, error: "Choose a date." };
-  if (session !== "morning" && session !== "afternoon")
-    return { ...base, error: "Choose a session." };
 
   for (const [key, value] of formData.entries()) {
     const v = String(value);
@@ -68,6 +94,11 @@ function parseForm(formData: FormData): Parsed {
       machineLabel: String(formData.get("issueMachineLabel") ?? "").trim() || null,
     };
   }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ...base, error: "Choose a date." };
+  if (session !== "morning" && session !== "afternoon")
+    return { ...base, error: "Choose a session." };
+
   return base;
 }
 
@@ -76,11 +107,12 @@ export async function createLessonLog(
   formData: FormData,
 ): Promise<ActionState> {
   const me = await requireRole("teacher", "admin");
-  const intake = await getActiveIntake();
-  if (!intake) return { ok: false, error: "No active intake." };
-
   const p = parseForm(formData);
-  if (p.error) return { ok: false, error: p.error };
+  const values = toValues(p);
+  const intake = await getActiveIntake();
+  if (!intake) return { ok: false, error: "No active intake.", values };
+
+  if (p.error) return { ok: false, error: p.error, values };
 
   const db = getDb();
   await db.transaction(async (tx) => {
@@ -207,7 +239,8 @@ export async function updateLessonLog(
     return { ok: false, error: "You can no longer edit this log (7-day limit)." };
 
   const p = parseForm(formData);
-  if (p.error) return { ok: false, error: p.error };
+  const values = toValues(p);
+  if (p.error) return { ok: false, error: p.error, values };
 
   const db = getDb();
   await db.transaction(async (tx) => {

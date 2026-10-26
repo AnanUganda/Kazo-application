@@ -63,6 +63,7 @@ function Disclosure({
 
 function RegisterForm({ id }: { id: string }) {
   const [state, action] = useActionState(moveToRegistered, initial);
+  const v = state.values ?? {};
   return (
     <Disclosure summary="Register (record fee)">
       <form action={action} className="space-y-3">
@@ -72,13 +73,17 @@ function RegisterForm({ id }: { id: string }) {
           <input
             name="amount"
             inputMode="numeric"
-            defaultValue="35000"
+            defaultValue={v.amount ?? "35000"}
             className="field-input py-2"
           />
         </div>
         <div>
           <label className="field-label">Method</label>
-          <select name="method" className="field-input py-2" defaultValue="mtn">
+          <select
+            name="method"
+            className="field-input py-2"
+            defaultValue={v.method ?? "mtn"}
+          >
             <option value="mtn">MTN</option>
             <option value="airtel">Airtel</option>
             <option value="cash">Cash</option>
@@ -86,11 +91,19 @@ function RegisterForm({ id }: { id: string }) {
         </div>
         <div>
           <label className="field-label">Transaction / receipt reference</label>
-          <input name="reference" className="field-input py-2" />
+          <input
+            name="reference"
+            defaultValue={v.reference ?? ""}
+            className="field-input py-2"
+          />
         </div>
         <div>
           <label className="field-label">Confirmed by</label>
-          <input name="confirmedBy" className="field-input py-2" />
+          <input
+            name="confirmedBy"
+            defaultValue={v.confirmedBy ?? ""}
+            className="field-input py-2"
+          />
         </div>
         <ErrorLine state={state} />
         <SubmitButton label="Confirm registration" full />
@@ -101,20 +114,26 @@ function RegisterForm({ id }: { id: string }) {
 
 function TestInterviewForm({ id }: { id: string }) {
   const [state, action] = useActionState(moveToTestInterview, initial);
+  const v = state.values ?? {};
   return (
     <Disclosure summary="Record test & interview">
       <form action={action} className="space-y-3">
         <input type="hidden" name="applicationId" value={id} />
         <div>
           <label className="field-label">Date</label>
-          <input name="testDate" type="date" className="field-input py-2" />
+          <input
+            name="testDate"
+            type="date"
+            defaultValue={v.testDate ?? ""}
+            className="field-input py-2"
+          />
         </div>
         <div>
           <label className="field-label">Result</label>
           <select
             name="testResult"
             className="field-input py-2"
-            defaultValue="pass"
+            defaultValue={v.testResult ?? "pass"}
           >
             <option value="pass">Pass</option>
             <option value="fail">Fail</option>
@@ -122,7 +141,12 @@ function TestInterviewForm({ id }: { id: string }) {
         </div>
         <div>
           <label className="field-label">Interview notes</label>
-          <textarea name="interviewNotes" rows={2} className="field-input py-2" />
+          <textarea
+            name="interviewNotes"
+            rows={2}
+            defaultValue={v.interviewNotes ?? ""}
+            className="field-input py-2"
+          />
         </div>
         <ErrorLine state={state} />
         <SubmitButton label="Save result" full />
@@ -157,7 +181,11 @@ function ExitForms({ id }: { id: string }) {
           <input type="hidden" name="applicationId" value={id} />
           <div>
             <label className="field-label">Reason (required)</label>
-            <input name="reason" className="field-input py-2" />
+            <input
+              name="reason"
+              defaultValue={waState.values?.reason ?? ""}
+              className="field-input py-2"
+            />
           </div>
           <ErrorLine state={waState} />
           <SubmitButton label="Withdraw" full />
