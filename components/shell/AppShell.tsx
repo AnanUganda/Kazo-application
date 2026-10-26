@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StaffRole } from "@/lib/db/schema";
+import { signOut } from "@/lib/auth/actions";
 import { navForRole, roleLabel } from "./nav";
 import { Icon } from "./icons";
 import { Logo } from "./Logo";
@@ -76,16 +77,15 @@ export function AppShell({
           </div>
         </div>
       </div>
-      {/* Full-page navigation to the Neon Auth sign-out handler (intentional for
-          an auth boundary, not client-side routing). */}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-      <a
-        href="/handler/sign-out"
-        className="mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
-      >
-        <Icon name="logout" />
-        Sign out
-      </a>
+      <form action={signOut} className="mt-1">
+        <button
+          type="submit"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+        >
+          <Icon name="logout" />
+          Sign out
+        </button>
+      </form>
     </div>
   );
 

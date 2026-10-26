@@ -1,17 +1,20 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { stackServerApp } from "./stack";
+import { createClient } from "@/lib/auth/supabase/server";
 import { getDb } from "@/lib/db";
 import { staff, type Staff } from "@/lib/db/schema";
 
 /**
- * Resolve the signed-in Neon Auth user to an active staff record.
+ * Resolve the signed-in Supabase user to an active staff record.
  * Returns null when nobody is signed in, or the signed-in user has no active
  * staff row. Use this where a missing session is a valid state.
  */
 export async function getSessionStaff(): Promise<Staff | null> {
-  const user = await stackServerApp.getUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
   const rows = await getDb()
@@ -30,7 +33,10 @@ export async function getSessionStaff(): Promise<Staff | null> {
  * to /no-access when signed in without an active staff record (e.g. deactivated).
  */
 export async function requireStaff(): Promise<Staff> {
-  const user = await stackServerApp.getUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in");
 
   const rows = await getDb()

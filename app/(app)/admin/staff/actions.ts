@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { requireRole } from "@/lib/permissions";
-import { stackServerApp } from "@/lib/auth/stack";
+import { createAdminClient } from "@/lib/auth/supabase/admin";
 import { getDb } from "@/lib/db";
 import { staff } from "@/lib/db/schema";
 import { logActivity } from "@/lib/activity";
@@ -51,15 +51,16 @@ export async function createStaff(
 
   let userId: string;
   try {
-    const user = await stackServerApp.createUser({
-      primaryEmail: data.email,
-      primaryEmailAuthEnabled: true,
-      primaryEmailVerified: true,
+    const supabaseAdmin = createAdminClient();
+    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
       password: data.password,
-      displayName: data.fullName,
+      email_confirm: true,
+      user_metadata: { full_name: data.fullName },
     });
-    userId = user.id;
-  } catch (err) {
+    if (error || !created.user) throw error ?? new Error("No user returned");
+    userId = created.user.id;
+  } catch {
     return {
       ok: false,
       error:

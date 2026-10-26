@@ -1,5 +1,5 @@
-import { SignIn } from "@stackframe/stack";
 import { Logo } from "@/components/shell/Logo";
+import { SignInForm } from "./SignInForm";
 
 export const metadata = { title: "Sign in — Kazo Technical School" };
 
@@ -17,7 +17,7 @@ export default function SignInPage() {
         <p className="mb-5 text-sm text-neutral-500">
           Use the email and password your administrator gave you.
         </p>
-        <SignIn />
+        <SignInForm />
       </div>
       <p className="mt-6 text-center text-xs text-neutral-400">
         Kazo Technical School · Staff access only

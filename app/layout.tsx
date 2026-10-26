@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackServerApp } from "@/lib/auth/stack";
 
 export const metadata: Metadata = {
   title: "Kazo Technical School — Staff Dashboard",
@@ -15,11 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <StackProvider app={stackServerApp}>
-          <StackTheme>{children}</StackTheme>
-        </StackProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
