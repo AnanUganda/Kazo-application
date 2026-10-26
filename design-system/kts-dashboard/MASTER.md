@@ -131,5 +131,31 @@ Money is always `UGX n,nnn` (integer, `formatUGX`). Dates via `formatDate`
 
 ---
 
+---
+
+## 11. Implementation: shadcn/ui (current)
+
+The app is now built on **shadcn/ui** with **Kazo maroon `#710014` mapped to
+`--primary`**. The tokens above are realized as shadcn CSS variables in
+`app/globals.css` (`--primary`, `--card`, `--muted-foreground`, `--border`,
+`--ring`, `--sidebar-*`, `--chart-*`, …); `--background` is white and the grey
+page backdrop comes from `body`.
+
+- **Primitives** live in `components/ui/`: `button`, `card`, `badge` (with
+  `success`/`warning` variants), `avatar`, `progress`, `separator`, `skeleton`,
+  `input`, `label`, `tooltip`, `sheet`, `chart` (recharts, **pinned to 2.15**).
+  Build new UI from these. `cn()` is in `lib/utils.ts`.
+- **Shell**: `components/shell/AppShell.tsx` is a shadcn sidebar + inset — white
+  sidebar with lucide nav icons, maroon active state (`bg-sidebar-accent`),
+  Avatar user card, and a mobile `Sheet` drawer.
+- **Icons**: `lucide-react` (no custom SVG set, no emoji).
+- **Charts**: shadcn `ChartContainer` + recharts; series colors read
+  `--chart-*`. Keep charts to pages that have real time-series; they load only
+  where imported.
+- **Shared classes** (`.card`, `.btn-primary`, `.btn-secondary`, `.field-input`,
+  `.field-label`) are aligned to the shadcn tokens, so existing pages that use
+  them render in the same language as the primitives. New components should
+  prefer the primitives; the shared classes remain for the already-built pages.
+
 *Keep this file current when the visual system changes. Page-specific overrides,
 if any, live in `design-system/kts-dashboard/pages/<page>.md` and win over MASTER.*

@@ -10,7 +10,7 @@
    background matches the existing app grey so current pages are unchanged. */
 @layer base {
   :root {
-    --background: 0 0% 96.5%;
+    --background: 0 0% 100%;
     --foreground: 0 0% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
@@ -87,22 +87,30 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Shared surface + control styles so pages stay consistent and light. */
+/* Shared surface + control styles, aligned to the shadcn token system so every
+   page that uses these classes renders in the same visual language as the
+   shadcn primitives (Card, Button, Input, …). */
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
 @layer components {
   .card {
-    @apply rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm;
+    @apply rounded-xl border bg-card p-5 text-card-foreground shadow-sm;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50;
   }
   .field-label {
-    @apply mb-1 block text-sm font-medium text-neutral-700;
+    @apply mb-1 block text-sm font-medium text-foreground;
   }
   .field-input {
-    @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand;
+    @apply flex w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50;
   }
 }
 

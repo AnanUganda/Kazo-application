@@ -3,12 +3,41 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  type LucideIcon,
+  CalendarRange,
+  ClipboardList,
+  Home,
+  LogOut,
+  Menu,
+  NotebookPen,
+  Package,
+  Settings,
+  ShieldCheck,
+  Users,
+  Wrench,
+} from "lucide-react";
 import type { StaffRole } from "@/lib/db/schema";
 import { signOut } from "@/lib/auth/actions";
 import { setPreviewRole } from "@/lib/preview-actions";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { navForRole, roleLabel } from "./nav";
-import { Icon } from "./icons";
 import { Logo } from "./Logo";
+
+const ICONS: Record<string, LucideIcon> = {
+  home: Home,
+  applications: ClipboardList,
+  students: Users,
+  lessons: NotebookPen,
+  syllabus: CalendarRange,
+  inventory: Package,
+  equipment: Wrench,
+  settings: Settings,
+  staff: ShieldCheck,
+};
 
 function PreviewBanner({ role }: { role: StaffRole }) {
   const roles: StaffRole[] = ["admin", "teacher", "store_keeper"];
@@ -23,11 +52,10 @@ function PreviewBanner({ role }: { role: StaffRole }) {
             <input type="hidden" name="role" value={r} />
             <button
               type="submit"
-              className={`rounded px-2 py-0.5 font-medium ${
-                r === role
-                  ? "bg-amber-200 text-amber-900"
-                  : "hover:bg-amber-100"
-              }`}
+              className={cn(
+                "rounded px-2 py-0.5 font-medium",
+                r === role ? "bg-amber-200 text-amber-900" : "hover:bg-amber-100",
+              )}
             >
               {roleLabel[r]}
             </button>
@@ -41,7 +69,6 @@ function PreviewBanner({ role }: { role: StaffRole }) {
 export function AppShell({
   role,
   name,
-  email,
   preview = false,
   children,
 }: {
@@ -63,116 +90,111 @@ export function AppShell({
   };
 
   const nav = (
-    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
-      {items.map((item) =>
-        item.implemented ? (
+    <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
+      {items.map((item) => {
+        const I = ICONS[item.icon] ?? Home;
+        if (!item.implemented) {
+          return (
+            <span
+              key={item.href}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50"
+            >
+              <I className="size-4" />
+              {item.label}
+              <span className="ml-auto rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                Soon
+              </span>
+            </span>
+          );
+        }
+        return (
           <Link
             key={item.href}
             href={item.href}
             onClick={() => setOpen(false)}
             aria-current={isActive(item.href) ? "page" : undefined}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               isActive(item.href)
-                ? "bg-brand-50 text-brand"
-                : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-            }`}
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+            )}
           >
-            <Icon name={item.icon} />
+            <I className="size-4 shrink-0" />
             {item.label}
           </Link>
-        ) : (
-          <span
-            key={item.href}
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-300"
-            title="Coming in a later phase"
-          >
-            <Icon name={item.icon} />
-            {item.label}
-            <span className="ml-auto rounded-md bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
-              Soon
-            </span>
-          </span>
-        ),
-      )}
+        );
+      })}
     </nav>
   );
 
   const userCard = (
-    <div className="border-t border-neutral-200 p-3">
-      <div className="flex items-center gap-3 rounded-xl px-2 py-2">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white">
-          {name.slice(0, 1).toUpperCase()}
-        </div>
+    <div className="border-t border-sidebar-border p-3">
+      <div className="flex items-center gap-3 px-2 py-2">
+        <Avatar className="size-9">
+          <AvatarFallback className="bg-primary text-primary-foreground">
+            {name.slice(0, 1).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-neutral-900">
+          <div className="truncate text-sm font-semibold text-foreground">
             {name}
           </div>
-          <div className="truncate text-xs text-neutral-500">
+          <div className="truncate text-xs text-muted-foreground">
             {roleLabel[role]}
           </div>
         </div>
       </div>
-      <form action={signOut} className="mt-1">
-        <button
+      <form action={signOut}>
+        <Button
           type="submit"
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+          variant="ghost"
+          className="mt-1 w-full justify-start gap-3 text-muted-foreground"
         >
-          <Icon name="logout" />
+          <LogOut className="size-4" />
           Sign out
-        </button>
+        </Button>
       </form>
     </div>
   );
 
+  const sidebarInner = (
+    <>
+      <div className="px-5 py-5">
+        <Logo />
+      </div>
+      {nav}
+      {userCard}
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-neutral-200 bg-white md:flex">
-        <div className="px-5 py-5">
-          <Logo />
-        </div>
-        {nav}
-        {userCard}
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">
+        {sidebarInner}
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 md:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background px-4 py-3 md:hidden">
         <Logo compact />
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
+        <Button
+          variant="ghost"
+          size="icon"
           aria-label="Open menu"
-          className="rounded-lg p-2 text-neutral-700 hover:bg-neutral-100"
+          onClick={() => setOpen(true)}
         >
-          <Icon name="menu" className="h-6 w-6" />
-        </button>
+          <Menu className="size-5" />
+        </Button>
       </header>
 
       {/* Mobile drawer */}
-      {open && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <button
-            aria-label="Close menu"
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setOpen(false)}
-          />
-          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col bg-white shadow-xl">
-            <div className="flex items-center justify-between px-5 py-5">
-              <Logo />
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="rounded-lg p-2 text-neutral-700 hover:bg-neutral-100"
-              >
-                <Icon name="close" />
-              </button>
-            </div>
-            {nav}
-            {userCard}
-          </div>
-        </div>
-      )}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="flex w-72 flex-col gap-0 p-0">
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
+          {sidebarInner}
+        </SheetContent>
+      </Sheet>
 
       {/* Content */}
       <div className="md:pl-64">
