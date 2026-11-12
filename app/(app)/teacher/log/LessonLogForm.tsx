@@ -129,7 +129,7 @@ export function LessonLogForm({
       <div>
         <h3 className="mb-1 text-sm font-semibold text-neutral-900">Attendance</h3>
         <p className="mb-2 text-xs text-neutral-500">
-          Everyone is present by default. Tap anyone who was absent.
+          Tap anyone who was absent.
         </p>
         {students.length === 0 ? (
           <p className="text-sm text-neutral-500">No active students in this intake.</p>
@@ -172,7 +172,7 @@ export function LessonLogForm({
               defaultChecked={v?.issue?.isMachine}
               className="h-4 w-4 rounded border-neutral-300"
             />
-            This is a machine issue (sends a fault report to the store keeper)
+            Machine issue (notifies the store keeper)
           </label>
           <input
             name="issueMachineLabel"

@@ -10,8 +10,7 @@ export default function NoAccessPage() {
       <div className="max-w-sm">
         <h1 className="text-lg font-semibold text-neutral-900">No access</h1>
         <p className="mt-2 text-sm text-neutral-500">
-          Your account is signed in but has no active staff role on this
-          dashboard. Please contact your administrator.
+          Your account has no active staff role. Contact your administrator.
         </p>
       </div>
       <form action={signOut}>

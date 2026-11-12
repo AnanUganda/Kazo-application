@@ -31,9 +31,7 @@ export default async function SettingsPage() {
       <header>
         <h1 className="text-xl font-bold text-neutral-900">Settings</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Fee amounts and the attendance threshold. Intake dates are set when you
-          create an intake; the syllabus plan and reorder levels arrive in later
-          phases.
+          Fees and attendance threshold.
         </p>
       </header>
 

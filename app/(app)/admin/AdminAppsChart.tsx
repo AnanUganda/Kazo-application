@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   ChartContainer,
@@ -13,32 +13,44 @@ const config = {
   count: { label: "Applications", color: "hsl(var(--chart-1))" },
 } satisfies ChartConfig;
 
+/**
+ * Weekly application counts as bars: the values are discrete counts per week,
+ * so bars read truer than a smoothed line. `week` is the week's start date.
+ */
 export function AdminAppsChart({
   data,
 }: {
   data: { week: string; count: number }[];
 }) {
   return (
-    <ChartContainer config={config} className="h-56 w-full">
-      <AreaChart data={data} margin={{ left: 4, right: 4, top: 8 }} accessibilityLayer>
-        <defs>
-          <linearGradient id="adminApps" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-count)" stopOpacity={0.25} />
-            <stop offset="100%" stopColor="var(--color-count)" stopOpacity={0.02} />
-          </linearGradient>
-        </defs>
+    <ChartContainer config={config} className="h-56 w-full lg:h-80">
+      <BarChart
+        data={data}
+        margin={{ left: 0, right: 4, top: 8, bottom: 0 }}
+        accessibilityLayer
+      >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={8} />
-        <YAxis tickLine={false} axisLine={false} width={28} allowDecimals={false} />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <Area
-          dataKey="count"
-          type="monotone"
-          stroke="var(--color-count)"
-          fill="url(#adminApps)"
-          strokeWidth={2}
+        <XAxis
+          dataKey="week"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          interval="preserveStartEnd"
         />
-      </AreaChart>
+        <YAxis tickLine={false} axisLine={false} width={24} allowDecimals={false} />
+        <ChartTooltip
+          cursor={{ fill: "hsl(var(--muted))" }}
+          content={
+            <ChartTooltipContent labelFormatter={(l) => `Week of ${l}`} />
+          }
+        />
+        <Bar
+          dataKey="count"
+          fill="var(--color-count)"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={36}
+        />
+      </BarChart>
     </ChartContainer>
   );
 }

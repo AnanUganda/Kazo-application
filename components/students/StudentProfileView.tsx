@@ -10,6 +10,7 @@ import {
   StudentStatusControl,
 } from "@/app/(app)/admin/students/StudentAdminControls";
 import { AttendanceBadge, StudentStatusBadge } from "./StudentListView";
+import { StatusTag } from "@/components/status-tag";
 
 const STAGE_LABEL: Record<ApplicationStage, string> = {
   applied_unpaid: "Applied (unpaid)",
@@ -68,15 +69,15 @@ export function StudentProfileView({
       <header className="card flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-xl font-bold text-neutral-900">
+            <h1 className="text-xl font-bold text-foreground">
               {student.fullName}
             </h1>
             <StudentStatusBadge status={student.status} />
           </div>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             {intake.name} · Enrolled {formatDate(student.createdAt)} ·{" "}
             {student.booth ? (
-              <span className="font-medium text-neutral-700">
+              <span className="font-medium text-foreground">
                 {student.booth}
               </span>
             ) : (
@@ -94,9 +95,8 @@ export function StudentProfileView({
       </header>
 
       {intake.status === "archived" && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800">
-          This intake is archived. Student records, fees, and attendance are
-          read-only.
+        <div className="rounded-xl border px-4 py-3 text-xs font-medium text-amber-700 dark:text-amber-400">
+          Archived intake — read-only.
         </div>
       )}
 
@@ -104,68 +104,68 @@ export function StudentProfileView({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="card space-y-4 lg:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-neutral-900">
+            <h2 className="text-sm font-semibold text-foreground">
               Contact details &amp; next of kin
             </h2>
           </div>
 
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-neutral-500">Phone</dt>
-              <dd className="font-medium text-neutral-900">{student.phone}</dd>
+              <dt className="text-xs text-muted-foreground">Phone</dt>
+              <dd className="font-medium text-foreground">{student.phone}</dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Email</dt>
-              <dd className="font-medium text-neutral-900">
-                {student.email || <span className="text-neutral-500">—</span>}
+              <dt className="text-xs text-muted-foreground">Email</dt>
+              <dd className="font-medium text-foreground">
+                {student.email || <span className="text-muted-foreground">—</span>}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Date of birth</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Date of birth</dt>
+              <dd className="font-medium text-foreground">
                 {student.dob ? (
                   formatDate(student.dob)
                 ) : (
-                  <span className="text-neutral-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Location / residence</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Location / residence</dt>
+              <dd className="font-medium text-foreground">
                 {student.location || (
-                  <span className="text-neutral-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </dd>
             </div>
           </dl>
 
-          <div className="border-t border-neutral-100 pt-3">
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <div className="border-t border pt-3">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Next of kin
             </h3>
             <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
               <div>
-                <dt className="text-xs text-neutral-500">Full name</dt>
-                <dd className="font-medium text-neutral-900">
+                <dt className="text-xs text-muted-foreground">Full name</dt>
+                <dd className="font-medium text-foreground">
                   {student.nextOfKinName || (
-                    <span className="text-neutral-500">—</span>
+                    <span className="text-muted-foreground">—</span>
                   )}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-neutral-500">Phone</dt>
-                <dd className="font-medium text-neutral-900">
+                <dt className="text-xs text-muted-foreground">Phone</dt>
+                <dd className="font-medium text-foreground">
                   {student.nextOfKinPhone || (
-                    <span className="text-neutral-500">—</span>
+                    <span className="text-muted-foreground">—</span>
                   )}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-neutral-500">Relationship</dt>
-                <dd className="font-medium text-neutral-900">
+                <dt className="text-xs text-muted-foreground">Relationship</dt>
+                <dd className="font-medium text-foreground">
                   {student.nextOfKinRelationship || (
-                    <span className="text-neutral-500">—</span>
+                    <span className="text-muted-foreground">—</span>
                   )}
                 </dd>
               </div>
@@ -176,24 +176,24 @@ export function StudentProfileView({
         </section>
 
         <section className="card space-y-4">
-          <h2 className="text-sm font-semibold text-neutral-900">
+          <h2 className="text-sm font-semibold text-foreground">
             Workshop assignment
           </h2>
           <dl className="space-y-3 text-sm">
             <div>
-              <dt className="text-xs text-neutral-500">Assigned booth</dt>
-              <dd className="mt-0.5 text-base font-semibold text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Assigned booth</dt>
+              <dd className="mt-0.5 text-base font-semibold text-foreground">
                 {student.booth || (
-                  <span className="text-sm font-normal text-neutral-500">
+                  <span className="text-sm font-normal text-muted-foreground">
                     Unassigned
                   </span>
                 )}
               </dd>
             </div>
-            <div className="border-t border-neutral-100 pt-3">
-              <dt className="text-xs text-neutral-500">Assigned machine</dt>
+            <div className="border-t border pt-3">
+              <dt className="text-xs text-muted-foreground">Assigned machine</dt>
               {assignedEquipment.length === 0 ? (
-                <dd className="mt-1 text-xs text-neutral-500">
+                <dd className="mt-1 text-xs text-muted-foreground">
                   No machine assigned yet.
                   {isAdmin && (
                     <Link
@@ -209,30 +209,24 @@ export function StudentProfileView({
                   {assignedEquipment.map((eqItem) => {
                     const statusBadge =
                       eqItem.status === "working" ? (
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                          Working
-                        </span>
+                        <StatusTag tone="success">Working</StatusTag>
                       ) : eqItem.status === "needs_repair" ? (
-                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                          Needs repair
-                        </span>
+                        <StatusTag tone="warning">Needs repair</StatusTag>
                       ) : (
-                        <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">
-                          Out of service
-                        </span>
+                        <StatusTag tone="danger">Out of service</StatusTag>
                       );
                     return (
                       <div
                         key={eqItem.id}
-                        className="rounded-xl border border-neutral-200 bg-neutral-50 p-2.5 text-xs"
+                        className="rounded-xl border border bg-muted/50 p-2.5 text-xs"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-bold text-neutral-900">
+                          <span className="font-bold text-foreground">
                             {eqItem.assetCode}
                           </span>
                           {statusBadge}
                         </div>
-                        <div className="mt-0.5 text-neutral-600">
+                        <div className="mt-0.5 text-muted-foreground">
                           {eqItem.type}
                           {eqItem.makeModel ? ` · ${eqItem.makeModel}` : ""}
                         </div>
@@ -258,10 +252,10 @@ export function StudentProfileView({
       <section className="card space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-neutral-900">
+            <h2 className="text-sm font-semibold text-foreground">
               Attendance
             </h2>
-            <p className="mt-0.5 text-xs text-neutral-500">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Derived from lesson absences since enrolment · threshold{" "}
               {threshold}%
             </p>
@@ -276,7 +270,7 @@ export function StudentProfileView({
         {attendance.belowThreshold && (
           <div
             role="alert"
-            className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-800"
+            className="flex items-center gap-2 rounded-xl border px-4 py-3 text-xs font-semibold text-red-700 dark:text-red-400"
           >
             <span className="h-2 w-2 shrink-0 rounded-full bg-red-600" />
             Red flag: attendance is {attendance.rate}%, below the {threshold}%
@@ -286,32 +280,32 @@ export function StudentProfileView({
         )}
 
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
-            <div className="text-xs text-neutral-500">Sessions held</div>
-            <div className="mt-0.5 text-lg font-bold text-neutral-900">
+          <div className="rounded-xl border border bg-muted/50 p-3">
+            <div className="text-xs text-muted-foreground">Sessions held</div>
+            <div className="mt-0.5 text-lg font-bold text-foreground">
               {attendance.sessionsHeld}
             </div>
           </div>
-          <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
-            <div className="text-xs text-neutral-500">Present</div>
-            <div className="mt-0.5 text-lg font-bold text-emerald-700">
+          <div className="rounded-xl border border bg-muted/50 p-3">
+            <div className="text-xs text-muted-foreground">Present</div>
+            <div className="mt-0.5 text-lg font-bold text-emerald-700 dark:text-emerald-400">
               {attendance.presentCount}
             </div>
           </div>
-          <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
-            <div className="text-xs text-neutral-500">Absences</div>
-            <div className="mt-0.5 text-lg font-bold text-neutral-900">
+          <div className="rounded-xl border border bg-muted/50 p-3">
+            <div className="text-xs text-muted-foreground">Absences</div>
+            <div className="mt-0.5 text-lg font-bold text-foreground">
               {attendance.absencesCount}
             </div>
           </div>
         </div>
 
         <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Absences by date ({absences.length})
           </h3>
           {absences.length === 0 ? (
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-muted-foreground">
               No absences recorded since enrolment.
             </p>
           ) : (
@@ -319,22 +313,22 @@ export function StudentProfileView({
               {absences.map((a) => (
                 <div
                   key={a.lessonLogId}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-100 px-3 py-2 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border px-3 py-2 text-sm"
                 >
                   <div>
-                    <span className="font-medium text-neutral-900">
+                    <span className="font-medium text-foreground">
                       {formatDate(a.date)}
                     </span>
-                    <span className="ml-2 text-xs capitalize text-neutral-500">
+                    <span className="ml-2 text-xs capitalize text-muted-foreground">
                       {a.session} session
                     </span>
                     {a.notes && (
-                      <span className="ml-2 text-xs text-neutral-500">
+                      <span className="ml-2 text-xs text-muted-foreground">
                         · {a.notes}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     Logged by {a.teacherName}
                   </span>
                 </div>
@@ -349,35 +343,33 @@ export function StudentProfileView({
         <section className="card space-y-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-neutral-900">
+              <h2 className="text-sm font-semibold text-foreground">
                 Fee ledger
               </h2>
-              <p className="mt-0.5 text-xs text-neutral-500">
-                Balances are always derived from the append-only payment log.
-                Payments cannot be edited or deleted — mistakes are corrected
-                with a reversal entry.
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Payments can&apos;t be edited. Fix mistakes with a reversal.
               </p>
             </div>
           </div>
 
           {/* Totals bar */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3.5">
-              <div className="text-xs text-neutral-500">Total billed</div>
-              <div className="mt-1 text-base font-bold text-neutral-900">
+            <div className="rounded-xl border border bg-muted/50 p-3.5">
+              <div className="text-xs text-muted-foreground">Total billed</div>
+              <div className="mt-1 text-base font-bold text-foreground">
                 {formatUGX(fees.totals.totalDue)}
               </div>
             </div>
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3.5">
-              <div className="text-xs text-neutral-500">
+            <div className="rounded-xl border border bg-muted/50 p-3.5">
+              <div className="text-xs text-muted-foreground">
                 Total paid (net of reversals)
               </div>
-              <div className="mt-1 text-base font-bold text-emerald-700">
+              <div className="mt-1 text-base font-bold text-emerald-700 dark:text-emerald-400">
                 {formatUGX(fees.totals.paid)}
               </div>
             </div>
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3.5">
-              <div className="text-xs text-neutral-500">Total balance due</div>
+            <div className="rounded-xl border border bg-muted/50 p-3.5">
+              <div className="text-xs text-muted-foreground">Total balance due</div>
               <div className="mt-1 text-base font-bold text-brand">
                 {formatUGX(fees.totals.balance)}
               </div>
@@ -388,37 +380,29 @@ export function StudentProfileView({
           <div className="space-y-4">
             {fees.lines.map((line) => {
               const statusBadge = !line.billed ? (
-                <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-500">
-                  Not billed yet
-                </span>
+                <StatusTag tone="neutral">Not billed yet</StatusTag>
               ) : line.balance <= 0 ? (
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-                  Paid
-                </span>
+                <StatusTag tone="success">Paid</StatusTag>
               ) : line.paid > 0 ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
-                  Partial
-                </span>
+                <StatusTag tone="warning">Partial</StatusTag>
               ) : (
-                <span className="rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-                  Unpaid
-                </span>
+                <StatusTag tone="danger">Unpaid</StatusTag>
               );
 
               return (
                 <div
                   key={line.code}
-                  className="rounded-xl border border-neutral-200 p-4 space-y-3"
+                  className="rounded-xl border border p-4 space-y-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-neutral-900">
+                        <h3 className="font-semibold text-foreground">
                           {line.name}
                         </h3>
                         {statusBadge}
                       </div>
-                      <div className="mt-0.5 text-xs text-neutral-500">
+                      <div className="mt-0.5 text-xs text-muted-foreground">
                         {semesterLabel(line.appliesToSemester)} · Standard fee{" "}
                         {formatUGX(line.defaultAmount)}
                       </div>
@@ -426,24 +410,24 @@ export function StudentProfileView({
 
                     <div className="flex flex-wrap items-center gap-4 text-sm">
                       <div>
-                        <div className="text-xs text-neutral-500">
+                        <div className="text-xs text-muted-foreground">
                           Amount due
                         </div>
-                        <div className="font-semibold text-neutral-800">
+                        <div className="font-semibold text-foreground">
                           {line.billed
                             ? formatUGX(line.amountDue)
                             : formatUGX(0)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-neutral-500">Paid</div>
-                        <div className="font-semibold text-emerald-700">
+                        <div className="text-xs text-muted-foreground">Paid</div>
+                        <div className="font-semibold text-emerald-700 dark:text-emerald-400">
                           {formatUGX(line.paid)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-neutral-500">Balance</div>
-                        <div className="font-bold text-neutral-900">
+                        <div className="text-xs text-muted-foreground">Balance</div>
+                        <div className="font-bold text-foreground">
                           {line.billed ? formatUGX(line.balance) : formatUGX(0)}
                         </div>
                       </div>
@@ -452,8 +436,8 @@ export function StudentProfileView({
 
                   {/* Ledger entries for this fee item */}
                   {line.payments.length > 0 && (
-                    <div className="space-y-2 border-t border-neutral-100 pt-3">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                    <div className="space-y-2 border-t border pt-3">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Payment &amp; reversal history ({line.payments.length})
                       </div>
                       {line.payments.map((p) => {
@@ -463,27 +447,27 @@ export function StudentProfileView({
                             key={p.id}
                             className={`rounded-xl border px-3 py-2.5 text-xs ${
                               isReversal
-                                ? "border-red-100 bg-red-50/50 text-red-900"
+                                ? "text-red-700 dark:text-red-400"
                                 : p.isReversed
-                                  ? "border-neutral-200 bg-neutral-50 text-neutral-500"
-                                  : "border-neutral-100 bg-white text-neutral-800"
+                                  ? "bg-muted/40 text-muted-foreground"
+                                  : "bg-background text-foreground"
                             }`}
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="font-semibold">
                                 {isReversal ? "Reversal · −" : "Payment · +"}
                                 {formatUGX(p.amount)}{" "}
-                                <span className="font-normal text-neutral-500">
+                                <span className="font-normal text-muted-foreground">
                                   ({METHOD_LABEL[p.method]}
                                   {p.reference ? ` · Ref: ${p.reference}` : ""})
                                 </span>
                                 {p.isReversed && !isReversal && (
-                                  <span className="ml-2 rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-neutral-600">
+                                  <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
                                     Reversed
                                   </span>
                                 )}
                               </div>
-                              <div className="text-neutral-500">
+                              <div className="text-muted-foreground">
                                 {formatDate(p.paidAt)}
                                 {p.confirmedBy
                                   ? ` · Confirmed by ${p.confirmedBy}`
@@ -494,7 +478,7 @@ export function StudentProfileView({
                               </div>
                             </div>
                             {isReversal && p.reason && (
-                              <div className="mt-1 text-red-700">
+                              <div className="mt-1 text-red-700 dark:text-red-400">
                                 Reason: {p.reason}
                               </div>
                             )}
@@ -513,7 +497,7 @@ export function StudentProfileView({
 
                   {/* Admin actions: Bill item (if not billed) + Record payment */}
                   {canEdit && (
-                    <div className="flex flex-wrap items-start justify-between gap-2 border-t border-neutral-100 pt-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2 border-t border pt-3">
                       <div className="min-w-0 flex-1">
                         <RecordPaymentForm
                           studentId={student.id}
@@ -545,74 +529,74 @@ export function StudentProfileView({
 
       {/* Full Application History */}
       <section className="card space-y-4">
-        <h2 className="text-sm font-semibold text-neutral-900">
+        <h2 className="text-sm font-semibold text-foreground">
           Application history
         </h2>
         {!application ? (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             No linked application record (student was added directly).
           </p>
         ) : (
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
             <div>
-              <dt className="text-xs text-neutral-500">Application stage</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Application stage</dt>
+              <dd className="font-medium text-foreground">
                 {STAGE_LABEL[application.stage]}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Applied on</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Applied on</dt>
+              <dd className="font-medium text-foreground">
                 {formatDate(application.createdAt)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Education level</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Education level</dt>
+              <dd className="font-medium text-foreground">
                 {application.educationLevel || (
-                  <span className="text-neutral-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">
+              <dt className="text-xs text-muted-foreground">
                 Prior welding experience
               </dt>
-              <dd className="font-medium text-neutral-900">
+              <dd className="font-medium text-foreground">
                 {application.priorExperience || (
-                  <span className="text-neutral-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Heard about KTS via</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Heard about KTS via</dt>
+              <dd className="font-medium text-foreground">
                 {application.heardAbout || (
-                  <span className="text-neutral-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-neutral-500">Test &amp; interview</dt>
-              <dd className="font-medium text-neutral-900">
+              <dt className="text-xs text-muted-foreground">Test &amp; interview</dt>
+              <dd className="font-medium text-foreground">
                 {application.testDate ? (
                   <>
                     {formatDate(application.testDate)}
                     {application.testResult && (
-                      <span className="ml-1.5 uppercase text-xs font-semibold text-emerald-700">
+                      <span className="ml-1.5 uppercase text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                         ({application.testResult})
                       </span>
                     )}
                   </>
                 ) : (
-                  <span className="text-neutral-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </dd>
             </div>
             {application.interviewNotes && (
               <div className="sm:col-span-3">
-                <dt className="text-xs text-neutral-500">Interview notes</dt>
-                <dd className="mt-0.5 text-neutral-800">
+                <dt className="text-xs text-muted-foreground">Interview notes</dt>
+                <dd className="mt-0.5 text-foreground">
                   {application.interviewNotes}
                 </dd>
               </div>

@@ -4,7 +4,10 @@
  * without a database or an account. Enabled only when PREVIEW_MODE=1.
  * This is a demo/testing harness and must never be enabled in production.
  */
-export const IS_PREVIEW = process.env.PREVIEW_MODE === "1";
+// Hard-off in production builds: preview bypasses sign-in, so a stray
+// PREVIEW_MODE=1 on the host must never expose the app.
+export const IS_PREVIEW =
+  process.env.PREVIEW_MODE === "1" && process.env.NODE_ENV !== "production";
 
 export const PREVIEW_IDS = {
   admin: "11111111-1111-4111-8111-111111111111",

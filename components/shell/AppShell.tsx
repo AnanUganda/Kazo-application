@@ -43,7 +43,7 @@ const ICONS: Record<string, LucideIcon> = {
 function PreviewBanner({ role }: { role: StaffRole }) {
   const roles: StaffRole[] = ["admin", "teacher", "store_keeper"];
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+    <div className="fixed inset-x-0 bottom-0 z-20 flex flex-wrap items-center gap-2 border-t border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800 md:left-64 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
       <span className="font-semibold">Preview mode</span>
       <span>· sample data, no sign-in · viewing as {roleLabel[role]}</span>
       <span className="ml-auto flex items-center gap-1">
@@ -55,7 +55,9 @@ function PreviewBanner({ role }: { role: StaffRole }) {
               type="submit"
               className={cn(
                 "rounded px-2 py-0.5 font-medium",
-                r === role ? "bg-amber-200 text-amber-900" : "hover:bg-amber-100",
+                r === role
+                  ? "bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-50"
+                  : "hover:bg-amber-100 dark:hover:bg-amber-900",
               )}
             >
               {roleLabel[r]}
@@ -98,11 +100,11 @@ export function AppShell({
           return (
             <span
               key={item.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-muted/60"
             >
               <I className="size-4" />
               {item.label}
-              <span className="ml-auto rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground">
+              <span className="ml-auto rounded-md bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase text-sidebar-muted">
                 Soon
               </span>
             </span>
@@ -117,8 +119,8 @@ export function AppShell({
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               isActive(item.href)
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground shadow-[inset_3px_0_0_hsl(var(--sidebar-primary))]"
+                : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground",
             )}
           >
             <I className="size-4 shrink-0" />
@@ -133,15 +135,15 @@ export function AppShell({
     <div className="border-t border-sidebar-border p-3">
       <div className="flex items-center gap-3 px-2 py-2">
         <Avatar className="size-9">
-          <AvatarFallback className="bg-primary text-primary-foreground">
+          <AvatarFallback className="bg-sidebar-primary font-semibold text-sidebar-primary-foreground">
             {name.slice(0, 1).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-foreground">
+          <div className="truncate text-sm font-semibold text-white">
             {name}
           </div>
-          <div className="truncate text-xs text-muted-foreground">
+          <div className="truncate text-xs text-sidebar-muted">
             {roleLabel[role]}
           </div>
         </div>
@@ -150,7 +152,7 @@ export function AppShell({
         <Button
           type="submit"
           variant="ghost"
-          className="mt-1 w-full justify-start gap-3 text-muted-foreground"
+          className="mt-1 w-full justify-start gap-3 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
           <LogOut className="size-4" />
           Sign out
@@ -162,8 +164,8 @@ export function AppShell({
   const sidebarInner = (
     <>
       <div className="flex items-center justify-between px-5 py-5">
-        <Logo />
-        <ThemeToggle />
+        <Logo onSidebar />
+        <ThemeToggle className="text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
       </div>
       {nav}
       {userCard}
@@ -195,7 +197,10 @@ export function AppShell({
 
       {/* Mobile drawer */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="flex w-72 flex-col gap-0 p-0">
+        <SheetContent
+          side="left"
+          className="flex w-72 flex-col gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
+        >
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           {sidebarInner}
         </SheetContent>
@@ -203,10 +208,15 @@ export function AppShell({
 
       {/* Content */}
       <div className="md:pl-64">
-        {preview && <PreviewBanner role={role} />}
-        <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <main
+          className={cn(
+            "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8",
+            preview && "pb-20",
+          )}
+        >
           {children}
         </main>
+        {preview && <PreviewBanner role={role} />}
       </div>
     </div>
   );

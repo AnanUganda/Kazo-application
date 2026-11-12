@@ -189,13 +189,13 @@ export function EditEquipmentForm({
   const v = state.values ?? {};
 
   return (
-    <details className="rounded-xl border border-neutral-200 bg-neutral-50/70">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100">
+    <details className="rounded-xl border border bg-muted/70">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted">
         Update status / booth / student
       </summary>
       <form
         action={action}
-        className="space-y-3 rounded-b-xl border-t border-neutral-200 bg-white p-3"
+        className="space-y-3 rounded-b-xl border-t border bg-background p-3"
       >
         <input type="hidden" name="equipmentId" value={item.id} />
         {state.error && (
@@ -316,14 +316,14 @@ export function ReportFaultForm({
   const v = state.values ?? {};
 
   return (
-    <details className="rounded-xl border border-neutral-200 bg-neutral-50/70">
+    <details className="rounded-xl border border bg-muted/70">
       <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-50">
         + Log fault on {assetCode}
       </summary>
       <form
         ref={formRef}
         action={action}
-        className="space-y-3 rounded-b-xl border-t border-neutral-200 bg-white p-3"
+        className="space-y-3 rounded-b-xl border-t border bg-background p-3"
       >
         <input type="hidden" name="equipmentId" value={equipmentId} />
         {state.error && (
@@ -391,13 +391,13 @@ export function ResolveFaultForm({
   const v = state.values ?? {};
 
   return (
-    <details className="mt-2 rounded-lg border border-neutral-200 bg-white">
+    <details className="mt-2 rounded-lg border border bg-background">
       <summary className="cursor-pointer list-none px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
         Resolve fault (record fix &amp; cost)
       </summary>
       <form
         action={action}
-        className="space-y-3 border-t border-neutral-100 p-3"
+        className="space-y-3 border-t border p-3"
       >
         <input type="hidden" name="faultId" value={fault.id} />
         {state.error && (
@@ -448,12 +448,12 @@ export function ResolveFaultForm({
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-neutral-700">
+        <label className="flex items-center gap-2 text-xs text-foreground">
           <input
             type="checkbox"
             name="restoreWorking"
             defaultChecked
-            className="rounded border-neutral-300 text-brand focus:ring-brand"
+            className="rounded border text-brand focus:ring-brand"
           />
           Set equipment status back to Working
         </label>

@@ -63,7 +63,7 @@ function EditTopic({ topic }: { topic: SyllabusTopic }) {
         </form>
         <form action={archiveTopic}>
           <input type="hidden" name="id" value={topic.id} />
-          <button type="submit" className="text-xs font-medium text-red-600 hover:underline">
+          <button type="submit" className="text-xs font-medium text-red-700 dark:text-red-400 hover:underline">
             Archive topic
           </button>
         </form>
@@ -101,9 +101,8 @@ export default async function SyllabusPage() {
         <div>
           <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Plan for <span className="font-medium">{intake.name}</span> (2
-            semesters · 13 weeks per semester · 18 KTS modules). Track status:
-            0–1 overdue green, 2 amber, 3+ red.
+            <span className="font-medium">{intake.name}</span> · 2 semesters ×
+            13 weeks · 18 modules
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

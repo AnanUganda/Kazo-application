@@ -6,6 +6,7 @@ import type {
 } from "@/lib/db/schema";
 import type { ConsumableWithStock } from "@/lib/inventory-data";
 import { formatDate, formatUGX, todayKampala } from "@/lib/format";
+import { StatusTag } from "@/components/status-tag";
 import {
   AddConsumableForm,
   EditConsumableForm,
@@ -73,18 +74,16 @@ export function ConsumablesView({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">
+          <h1 className="text-xl font-bold text-foreground">
             Consumables &amp; stock
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Stock levels are always computed from stock movements (in, out, and
-            physical count adjustments) — never edited directly.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Record stock in, out, or a count to change levels.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {lowStockTotal > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
-              <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
+            <span className="inline-flex items-center rounded-lg border px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
               {lowStockTotal} low-stock item{lowStockTotal === 1 ? "" : "s"}
             </span>
           )}
@@ -164,7 +163,7 @@ export function ConsumablesView({
         {/* Add new consumable */}
         <section className="lg:col-span-1">
           <div className="card space-y-4">
-            <h2 className="text-sm font-semibold text-neutral-900">
+            <h2 className="text-sm font-semibold text-foreground">
               Add consumable item
             </h2>
             <AddConsumableForm />
@@ -174,51 +173,42 @@ export function ConsumablesView({
         {/* Consumables list */}
         <section className="space-y-4 lg:col-span-2">
           {filtered.length === 0 ? (
-            <div className="card text-sm text-neutral-500">
+            <div className="card text-sm text-muted-foreground">
               No consumable items match the current filter.
             </div>
           ) : (
             filtered.map(({ consumable, stockLevel, lowStock, movements }) => (
-              <div
-                key={consumable.id}
-                className={`card space-y-4 ${
-                  lowStock ? "border-amber-300" : ""
-                }`}
-              >
+              <div key={consumable.id} className="card space-y-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-semibold text-neutral-900">
+                      <h3 className="font-semibold text-foreground">
                         {consumable.name}
                       </h3>
-                      <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600">
+                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                         {CATEGORY_LABEL[consumable.category]}
                       </span>
                       {lowStock && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
-                          <span
-                            className="h-1.5 w-1.5 rounded-full bg-amber-500"
-                            aria-hidden
-                          />
+                        <StatusTag tone="warning">
                           Low stock (≤ {consumable.reorderLevel})
-                        </span>
+                        </StatusTag>
                       )}
                     </div>
-                    <div className="mt-0.5 text-xs text-neutral-500">
+                    <div className="mt-0.5 text-xs text-muted-foreground">
                       Unit: {consumable.unit} · Reorder level:{" "}
                       {consumable.reorderLevel} {UNIT_LABEL[consumable.unit]}
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-xs text-neutral-500">In stock</div>
+                    <div className="text-xs text-muted-foreground">In stock</div>
                     <div
                       className={`text-xl font-bold ${
-                        lowStock ? "text-amber-700" : "text-neutral-900"
+                        lowStock ? "text-amber-700 dark:text-amber-400" : "text-foreground"
                       }`}
                     >
                       {stockLevel}{" "}
-                      <span className="text-xs font-medium text-neutral-500">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {UNIT_LABEL[consumable.unit]}
                       </span>
                     </div>
@@ -241,26 +231,26 @@ export function ConsumablesView({
                 </div>
 
                 {/* Movement history */}
-                <details className="rounded-xl border border-neutral-100 bg-neutral-50/50">
-                  <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-neutral-600">
+                <details className="rounded-xl border border bg-muted/50">
+                  <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-muted-foreground">
                     Movement log ({movements.length})
                   </summary>
-                  <div className="space-y-1.5 border-t border-neutral-100 p-3 text-xs">
+                  <div className="space-y-1.5 border-t border p-3 text-xs">
                     {movements.length === 0 ? (
-                      <p className="text-neutral-500">No stock movements yet.</p>
+                      <p className="text-muted-foreground">No stock movements yet.</p>
                     ) : (
                       movements.slice(0, 20).map((m) => {
                         const sign = m.quantityDelta > 0 ? "+" : "";
                         const badgeColor =
                           m.type === "in"
-                            ? "text-emerald-700 font-semibold"
+                            ? "text-emerald-700 dark:text-emerald-400 font-semibold"
                             : m.type === "out"
                               ? "text-brand font-semibold"
-                              : "text-amber-800 font-semibold";
+                              : "text-amber-800 dark:text-amber-400 font-semibold";
                         return (
                           <div
                             key={m.id}
-                            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-100 bg-white px-2.5 py-2"
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border bg-background px-2.5 py-2"
                           >
                             <div>
                               <span className={badgeColor}>
@@ -273,20 +263,20 @@ export function ConsumablesView({
                                 {m.quantityDelta} {consumable.unit}
                               </span>
                               {m.type === "in" && (
-                                <span className="ml-2 text-neutral-600">
+                                <span className="ml-2 text-muted-foreground">
                                   Supplier: {m.supplier}
                                   {m.cost !== null ? ` · ${formatUGX(m.cost)}` : ""}
                                   {m.receivedBy ? ` · Rcvd by ${m.receivedBy}` : ""}
                                 </span>
                               )}
                               {m.type === "out" && (
-                                <span className="ml-2 text-neutral-600">
+                                <span className="ml-2 text-muted-foreground">
                                   {m.purpose ? PURPOSE_LABEL[m.purpose] : ""}
                                   {m.takenBy ? ` · Taken by ${m.takenBy}` : ""}
                                 </span>
                               )}
                               {m.type === "adjustment" && (
-                                <span className="ml-2 text-neutral-600">
+                                <span className="ml-2 text-muted-foreground">
                                   Counted: {m.physicalCount} · Reason:{" "}
                                   {m.adjustmentReason
                                     ? REASON_LABEL[m.adjustmentReason]
@@ -295,7 +285,7 @@ export function ConsumablesView({
                                 </span>
                               )}
                             </div>
-                            <span className="text-neutral-500">
+                            <span className="text-muted-foreground">
                               {formatDate(m.date)}
                             </span>
                           </div>

@@ -6,6 +6,7 @@ import type {
   UnlinkedLessonFault,
 } from "@/lib/inventory-data";
 import { formatDate, formatUGX, todayKampala } from "@/lib/format";
+import { StatusTag, type StatusTone } from "@/components/status-tag";
 import {
   AddEquipmentForm,
   EditEquipmentForm,
@@ -21,26 +22,13 @@ export const EQUIPMENT_STATUS_LABEL: Record<EquipmentStatus, string> = {
 };
 
 export function EquipmentStatusBadge({ status }: { status: EquipmentStatus }) {
-  const styles: Record<EquipmentStatus, string> = {
-    working: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    needs_repair: "border-amber-200 bg-amber-50 text-amber-800",
-    out_of_service: "border-red-200 bg-red-50 text-red-700",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${styles[status]}`}
-    >
-      {status !== "working" && (
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${
-            status === "needs_repair" ? "bg-amber-500" : "bg-red-600"
-          }`}
-          aria-hidden
-        />
-      )}
-      {EQUIPMENT_STATUS_LABEL[status]}
-    </span>
-  );
+  const tone: StatusTone =
+    status === "working"
+      ? "success"
+      : status === "needs_repair"
+        ? "warning"
+        : "danger";
+  return <StatusTag tone={tone}>{EQUIPMENT_STATUS_LABEL[status]}</StatusTag>;
 }
 
 export function EquipmentView({
@@ -99,23 +87,21 @@ export function EquipmentView({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">
+          <h1 className="text-xl font-bold text-foreground">
             Equipment register &amp; faults
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Asset register, booth &amp; student assignments (linked two-way with
-            student profiles), and fault logs from teacher lesson reports.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Machines, booth assignments and faults.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {brokenCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
-              <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
+            <span className="inline-flex items-center rounded-lg border px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
               {brokenCount} needing repair / out of service
             </span>
           )}
           {unassignedBooths.length > 0 && (
-            <span className="inline-flex items-center rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-600">
+            <span className="inline-flex items-center rounded-lg border px-3 py-1 text-xs font-semibold text-muted-foreground">
               {unassignedBooths.length} unassigned booth
               {unassignedBooths.length === 1 ? "" : "s"}
             </span>
@@ -143,29 +129,28 @@ export function EquipmentView({
 
       {/* Unlinked lesson-log machine fault reports queue */}
       {unlinkedLessonFaults.length > 0 && (
-        <section className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
+        <section className="card space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-amber-900">
+            <h2 className="text-sm font-semibold text-amber-700 dark:text-amber-400">
               Lesson-log machine fault reports to link (
               {unlinkedLessonFaults.length})
             </h2>
-            <p className="text-xs text-amber-800">
-              These machine issues were reported in teacher lesson logs. Link
-              each report to its asset in the equipment register.
+            <p className="text-xs text-muted-foreground">
+              Link each report to its machine.
             </p>
           </div>
           <div className="space-y-2">
             {unlinkedLessonFaults.map((uf) => (
               <div
                 key={uf.lessonIssueId}
-                className="rounded-xl border border-amber-200 bg-white p-3 text-xs"
+                className="rounded-xl border p-3 text-xs"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="font-semibold text-neutral-900">
+                  <div className="font-semibold text-foreground">
                     {uf.machineLabel ? `${uf.machineLabel}: ` : ""}
                     {uf.problem}
                   </div>
-                  <span className="text-neutral-500">
+                  <span className="text-muted-foreground">
                     {formatDate(uf.date)} · Reported by {uf.reportedBy}
                   </span>
                 </div>
@@ -223,19 +208,19 @@ export function EquipmentView({
       {/* Unassigned booths overview */}
       {(filter === "unassigned" || unassignedBooths.length > 0) && (
         <section className="card space-y-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Workshop booths without a working machine ({unassignedBooths.length})
           </h2>
           {unassignedBooths.length === 0 ? (
-            <p className="text-xs text-emerald-700">
-              All workshop booths currently have a working machine assigned.
+            <p className="text-xs text-emerald-700 dark:text-emerald-400">
+              Every booth has a working machine.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {unassignedBooths.map((booth) => (
                 <span
                   key={booth}
-                  className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-2.5 py-1 text-xs font-medium text-neutral-700"
+                  className="rounded-lg border border-dashed border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground"
                 >
                   {booth}
                 </span>
@@ -249,7 +234,7 @@ export function EquipmentView({
         {/* Register new equipment */}
         <section className="lg:col-span-1">
           <div className="card space-y-4">
-            <h2 className="text-sm font-semibold text-neutral-900">
+            <h2 className="text-sm font-semibold text-foreground">
               Register equipment
             </h2>
             <AddEquipmentForm
@@ -262,33 +247,28 @@ export function EquipmentView({
         {/* Equipment list */}
         <section className="space-y-4 lg:col-span-2">
           {filtered.length === 0 ? (
-            <div className="card text-sm text-neutral-500">
+            <div className="card text-sm text-muted-foreground">
               No equipment items match the current filter.
             </div>
           ) : (
             filtered.map(
               ({ item, assignedStudentName, faults, openFaultCount }) => (
-                <div
-                  key={item.id}
-                  className={`card space-y-4 ${
-                    item.status !== "working" ? "border-amber-300" : ""
-                  }`}
-                >
+                <div key={item.id} className="card space-y-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-lg bg-neutral-900 px-2 py-0.5 text-xs font-bold text-white">
+                        <span className="rounded-lg bg-foreground px-2 py-0.5 text-xs font-bold text-background">
                           {item.assetCode}
                         </span>
-                        <h3 className="font-semibold text-neutral-900">
+                        <h3 className="font-semibold text-foreground">
                           {item.type}
                         </h3>
                         <EquipmentStatusBadge status={item.status} />
                       </div>
-                      <div className="mt-1 text-xs text-neutral-500">
+                      <div className="mt-1 text-xs text-muted-foreground">
                         {item.makeModel ? `${item.makeModel} · ` : ""}
                         Booth:{" "}
-                        <span className="font-medium text-neutral-800">
+                        <span className="font-medium text-foreground">
                           {item.booth || "Unassigned"}
                         </span>{" "}
                         · Student:{" "}
@@ -301,21 +281,21 @@ export function EquipmentView({
                               {assignedStudentName}
                             </Link>
                           ) : (
-                            <span className="font-medium text-neutral-800">
+                            <span className="font-medium text-foreground">
                               {assignedStudentName}
                             </span>
                           )
                         ) : (
-                          <span className="text-neutral-500">Unassigned</span>
+                          <span className="text-muted-foreground">Unassigned</span>
                         )}
                       </div>
                     </div>
 
                     {openFaultCount > 0 && (
-                      <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
+                      <StatusTag tone="danger">
                         {openFaultCount} open fault
                         {openFaultCount === 1 ? "" : "s"}
-                      </span>
+                      </StatusTag>
                     )}
                   </div>
 
@@ -335,12 +315,12 @@ export function EquipmentView({
                   </div>
 
                   {/* Fault log */}
-                  <div className="space-y-2 border-t border-neutral-100 pt-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  <div className="space-y-2 border-t border pt-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Fault log ({faults.length})
                     </div>
                     {faults.length === 0 ? (
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-muted-foreground">
                         No faults logged for this asset.
                       </p>
                     ) : (
@@ -349,14 +329,10 @@ export function EquipmentView({
                         return (
                           <div
                             key={f.id}
-                            className={`rounded-xl border p-3 text-xs ${
-                              isOpen
-                                ? "border-amber-200 bg-amber-50/40"
-                                : "border-neutral-100 bg-neutral-50/60"
-                            }`}
+                            className="rounded-xl border bg-muted/30 p-3 text-xs"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="font-semibold text-neutral-900">
+                              <div className="font-semibold text-foreground">
                                 {f.problem}
                                 {f.lessonIssueId && (
                                   <span className="ml-2 rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
@@ -364,24 +340,18 @@ export function EquipmentView({
                                   </span>
                                 )}
                               </div>
-                              <span
-                                className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
-                                  isOpen
-                                    ? "bg-amber-200/80 text-amber-900"
-                                    : "bg-emerald-100 text-emerald-800"
-                                }`}
-                              >
+                              <StatusTag tone={isOpen ? "warning" : "success"}>
                                 {isOpen ? "Open" : "Resolved"}
-                              </span>
+                              </StatusTag>
                             </div>
-                            <div className="mt-1 text-neutral-500">
+                            <div className="mt-1 text-muted-foreground">
                               Reported {formatDate(f.reportedAt)} by{" "}
                               {f.reportedBy}
                             </div>
 
                             {!isOpen && (
-                              <div className="mt-1.5 rounded-lg bg-white px-2.5 py-1.5 text-neutral-700 border border-neutral-100">
-                                <span className="font-semibold text-emerald-800">
+                              <div className="mt-1.5 rounded-lg bg-background px-2.5 py-1.5 text-foreground border border">
+                                <span className="font-semibold text-emerald-800 dark:text-emerald-400">
                                   Fix:
                                 </span>{" "}
                                 {f.fix}

@@ -17,13 +17,13 @@ export function parseAmountToInt(input: string): number | null {
 }
 
 /**
- * Last name for a welcome greeting: drops any parenthetical (e.g. "(Principal)")
- * and returns the final word of the remaining name.
+ * First name for a welcome greeting: drops any parenthetical (e.g. "(Principal)")
+ * and returns the leading word, so it matches the name shown in the sidebar.
  */
-export function displayLastName(fullName: string): string {
+export function displayFirstName(fullName: string): string {
   const base = fullName.replace(/\([^)]*\)/g, "").trim();
   const parts = base.split(/\s+/).filter(Boolean);
-  return parts.length > 0 ? parts[parts.length - 1] : fullName.trim();
+  return parts.length > 0 ? parts[0] : fullName.trim();
 }
 
 /** Today's date in Africa/Kampala as YYYY-MM-DD. */

@@ -95,13 +95,13 @@ export function EditStudentDetailsForm({ student }: { student: Student }) {
   const v = state.values ?? {};
 
   return (
-    <details className="group rounded-xl border border-neutral-200 bg-neutral-50/60">
+    <details className="group rounded-xl border border bg-muted/60">
       <summary className="cursor-pointer list-none rounded-xl px-4 py-2.5 text-sm font-semibold text-brand hover:bg-brand-50">
         Edit student &amp; booth details
       </summary>
       <form
         action={action}
-        className="space-y-4 border-t border-neutral-200 bg-white p-4 rounded-b-xl"
+        className="space-y-4 border-t border bg-background p-4 rounded-b-xl"
       >
         <input type="hidden" name="studentId" value={student.id} />
 
@@ -120,7 +120,7 @@ export function EditStudentDetailsForm({ student }: { student: Student }) {
         )}
 
         <fieldset className="space-y-3">
-          <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Contact &amp; booth
           </legend>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -203,8 +203,8 @@ export function EditStudentDetailsForm({ student }: { student: Student }) {
           </div>
         </fieldset>
 
-        <fieldset className="space-y-3 border-t border-neutral-100 pt-3">
-          <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <fieldset className="space-y-3 border-t border pt-3">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Next of kin
           </legend>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -313,14 +313,14 @@ export function RecordPaymentForm({
     v.amount ?? (suggestedAmount > 0 ? String(suggestedAmount) : "");
 
   return (
-    <details className="group rounded-xl border border-neutral-200 bg-neutral-50/60">
+    <details className="group rounded-xl border border bg-muted/60">
       <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-50">
         + Record payment for {feeName}
       </summary>
       <form
         ref={formRef}
         action={action}
-        className="space-y-3 border-t border-neutral-200 bg-white p-3 rounded-b-xl"
+        className="space-y-3 border-t border bg-background p-3 rounded-b-xl"
       >
         <input type="hidden" name="studentId" value={studentId} />
         <input type="hidden" name="feeTypeCode" value={feeTypeCode} />
@@ -425,17 +425,17 @@ export function ReversePaymentForm({
   const v = state.values ?? {};
 
   return (
-    <details className="mt-1 rounded-lg border border-neutral-200 bg-neutral-50">
-      <summary className="cursor-pointer list-none px-2.5 py-1 text-xs font-medium text-neutral-600 hover:text-red-700">
+    <details className="mt-1 rounded-lg border border bg-muted/50">
+      <summary className="cursor-pointer list-none px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-red-700">
         Reverse ({formatUGX(amount)})
       </summary>
       <form
         action={action}
-        className="space-y-2 border-t border-neutral-200 bg-white p-2.5 rounded-b-lg"
+        className="space-y-2 border-t border bg-background p-2.5 rounded-b-lg"
       >
         <input type="hidden" name="studentId" value={studentId} />
         <input type="hidden" name="paymentId" value={paymentId} />
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-muted-foreground">
           Creates a reversal entry for {formatUGX(amount)}. Original payment
           remains in the audit log.
         </p>

@@ -4,7 +4,7 @@ import { AlertTriangle, ListChecks, Plus, UserX } from "lucide-react";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
 import { lessonAbsences, lessonLogs, staff } from "@/lib/db/schema";
-import { displayLastName, formatDate, todayKampala } from "@/lib/format";
+import { displayFirstName, formatDate, todayKampala } from "@/lib/format";
 import { getActiveIntake, intakeEvents } from "@/lib/intake";
 import { loadStudentList } from "@/lib/students-data";
 import { loadSyllabus } from "@/lib/syllabus-data";
@@ -141,7 +141,7 @@ export default async function TeacherHome() {
               Teacher Workspace · {KTS_COURSE_POLICY.courseName}
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight">
-              Welcome, {displayLastName(teacher.fullName)}
+              Welcome, {displayFirstName(teacher.fullName)}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {KTS_COURSE_POLICY.schedule} ·{" "}
@@ -173,7 +173,7 @@ export default async function TeacherHome() {
           label="Overdue topics"
           icon={AlertTriangle}
           value={String(overdueTopics.length)}
-          valueClassName="text-red-700"
+          valueClassName="text-red-700 dark:text-red-400"
           hint={`${dueThisAndNextWeek.length} due this week & next`}
         />
         <StatCard
@@ -243,9 +243,7 @@ export default async function TeacherHome() {
           <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
               <CardTitle>Overdue topics ({overdueTopics.length})</CardTitle>
-              <CardDescription>
-                Target week passed without being marked completed.
-              </CardDescription>
+              <CardDescription>Past their target week</CardDescription>
             </div>
             <Link
               href="/teacher/log"
@@ -264,17 +262,18 @@ export default async function TeacherHome() {
                 {overdueTopics.map((t) => (
                   <li
                     key={t.id}
-                    className="flex items-center justify-between gap-3 py-2.5"
+                    className="flex items-center gap-3 py-2.5"
                   >
-                    <div className="min-w-0">
-                      <div className="truncate font-medium text-red-700">
-                        {t.title}
-                      </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{t.title}</div>
                       <div className="text-xs text-muted-foreground">
                         Sem {t.semester} · Target Week {t.targetWeek} (
                         {t.type === "theory" ? "Theory" : "Practical"})
                       </div>
                     </div>
+                    <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-red-700 dark:text-red-400">
+                      Overdue
+                    </span>
                     <Button variant="outline" size="sm" asChild>
                       <Link href="/teacher/log">Log now</Link>
                     </Button>
@@ -290,9 +289,7 @@ export default async function TeacherHome() {
           <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
               <CardTitle>Recent lesson logs</CardTitle>
-              <CardDescription>
-                You can edit your own logs within 7 days of the lesson date.
-              </CardDescription>
+              <CardDescription>Editable for 7 days</CardDescription>
             </div>
             <Link
               href="/teacher/log"
@@ -356,9 +353,8 @@ export default async function TeacherHome() {
                 Under {studentListData.threshold}% attendance
               </CardTitle>
               <CardDescription>
-                KTS requires ≥{KTS_COURSE_POLICY.attendanceRequirementPct}%
-                attendance; {KTS_COURSE_POLICY.consecutiveAbsenceTerminationDays}{" "}
-                consecutive absent days triggers review.
+                {KTS_COURSE_POLICY.consecutiveAbsenceTerminationDays} absences in
+                a row triggers review
               </CardDescription>
             </div>
             <Link

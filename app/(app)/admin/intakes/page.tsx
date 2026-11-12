@@ -45,8 +45,7 @@ export default async function IntakesPage() {
         <div>
           <h1 className="text-xl font-bold text-neutral-900">Intakes</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Only one intake is active at a time. Closing an intake archives it and
-            its records become read-only.
+            One intake is active at a time.
           </p>
         </div>
         <Link
@@ -80,8 +79,7 @@ export default async function IntakesPage() {
             </form>
           </div>
           <p className="mt-4 text-xs text-neutral-500">
-            Closing cannot be undone. The intake and its students and syllabus
-            progress stay readable but locked.
+            Closing can&apos;t be undone. Its records become read-only.
           </p>
         </section>
       ) : (

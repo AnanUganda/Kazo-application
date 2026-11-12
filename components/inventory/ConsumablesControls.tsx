@@ -171,14 +171,14 @@ export function StockInForm({
   const v = state.values ?? {};
 
   return (
-    <details className="rounded-xl border border-neutral-200 bg-neutral-50/70">
+    <details className="rounded-xl border border bg-muted/70">
       <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
         + Stock in ({consumable.unit})
       </summary>
       <form
         ref={formRef}
         action={action}
-        className="space-y-3 rounded-b-xl border-t border-neutral-200 bg-white p-3"
+        className="space-y-3 rounded-b-xl border-t border bg-background p-3"
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
         {state.error && (
@@ -282,14 +282,14 @@ export function StockOutForm({
   const v = state.values ?? {};
 
   return (
-    <details className="rounded-xl border border-neutral-200 bg-neutral-50/70">
+    <details className="rounded-xl border border bg-muted/70">
       <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-50">
         − Stock out ({consumable.unit})
       </summary>
       <form
         ref={formRef}
         action={action}
-        className="space-y-3 rounded-b-xl border-t border-neutral-200 bg-white p-3"
+        className="space-y-3 rounded-b-xl border-t border bg-background p-3"
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
         {state.error && (
@@ -380,19 +380,19 @@ export function StockCountForm({
   const v = state.values ?? {};
 
   return (
-    <details className="rounded-xl border border-neutral-200 bg-neutral-50/70">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100">
+    <details className="rounded-xl border border bg-muted/70">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted">
         Physical stock count
       </summary>
       <form
         ref={formRef}
         action={action}
-        className="space-y-3 rounded-b-xl border-t border-neutral-200 bg-white p-3"
+        className="space-y-3 rounded-b-xl border-t border bg-background p-3"
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-muted-foreground">
           Current system stock is{" "}
-          <span className="font-semibold text-neutral-800">
+          <span className="font-semibold text-foreground">
             {currentStock} {consumable.unit}
           </span>
           . Enter the physical count; any difference is recorded as an
@@ -460,13 +460,13 @@ export function EditConsumableForm({ consumable }: { consumable: Consumable }) {
   const v = state.values ?? {};
 
   return (
-    <details className="rounded-xl border border-neutral-200 bg-neutral-50/70">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-medium text-neutral-500 hover:bg-neutral-100">
+    <details className="rounded-xl border border bg-muted/70">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted">
         Edit item details
       </summary>
       <form
         action={action}
-        className="space-y-3 rounded-b-xl border-t border-neutral-200 bg-white p-3"
+        className="space-y-3 rounded-b-xl border-t border bg-background p-3"
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
         {state.error && (

@@ -6,6 +6,7 @@ import {
   ClipboardList,
   Download,
   GraduationCap,
+  Plus,
   Wrench,
 } from "lucide-react";
 import { requireRole } from "@/lib/permissions";
@@ -18,7 +19,7 @@ import {
 } from "@/lib/db/schema";
 import {
   daysSince,
-  displayLastName,
+  displayFirstName,
   formatDate,
   formatUGX,
   todayKampala,
@@ -189,8 +190,15 @@ export default async function AdminHome() {
       const t = new Date(a.createdAt).getTime();
       return t >= start && t < end;
     }).length;
-    return { week: `W${idx + 1}`, count };
+    const week = new Date(start).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+    return { week, count };
   });
+  const appsLast8Weeks = weekSeries.reduce((sum, w) => sum + w.count, 0);
+  const appsThisWeek = weekSeries[weekSeries.length - 1]?.count ?? 0;
 
   const syllabusVariant: StatBadgeVariant =
     syllabusTone === "green"
@@ -224,37 +232,45 @@ export default async function AdminHome() {
       {/* Header */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-            Administrator Overview · {KTS_COURSE_POLICY.courseName}
-          </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">
-            Welcome, {displayLastName(admin.fullName)}
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Administrator Overview
+            </p>
+            <span className="rounded-md border px-2 py-0.5 text-xs font-medium text-foreground">
+              {KTS_COURSE_POLICY.courseName}
+            </span>
+          </div>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight">
+            Welcome, {displayFirstName(admin.fullName)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {activeIntake
-              ? `Active intake: ${activeIntake.name} (${formatDate(activeIntake.startDate)} – ${formatDate(activeIntake.endDate)}).`
-              : "No active intake set."}{" "}
-            Every number below opens its filtered list.
+              ? `Active intake: ${activeIntake.name} (${formatDate(activeIntake.startDate)} – ${formatDate(activeIntake.endDate)})`
+              : "No active intake set."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" asChild>
-            <Link href="/admin/applications">Applications board</Link>
+            <Link href="/admin/students?filter=owing">
+              <Banknote /> Record fee payment
+            </Link>
           </Button>
           <Button asChild>
-            <Link href="/admin/students">Students &amp; fees</Link>
+            <Link href="/apply">
+              <Plus /> New application
+            </Link>
           </Button>
         </div>
       </header>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard
           href="/admin/syllabus"
           label="Syllabus track"
           icon={GraduationCap}
           value={`${overdueCount} overdue`}
-          hint={`${completedTopicsCount}/${syllabusData.topics.length} modules done`}
+          hint={`${completedTopicsCount} of ${syllabusData.topics.length} modules done`}
           badge={{ variant: syllabusVariant, label: badgeLabel }}
         />
         <StatCard
@@ -278,7 +294,7 @@ export default async function AdminHome() {
           label="Fees outstanding"
           icon={Banknote}
           value={formatUGX(totalFeesOutstanding)}
-          valueClassName="text-amber-700"
+          valueClassName="text-amber-700 dark:text-amber-400"
           hint={`${studentsOwing.length} student${studentsOwing.length === 1 ? "" : "s"} owing balance`}
         />
         <StatCard
@@ -307,20 +323,34 @@ export default async function AdminHome() {
       </div>
 
       {/* Applications trend chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Applications received</CardTitle>
-          <CardDescription>
-            New applications per week over the last eight weeks
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AdminAppsChart data={weekSeries} />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <Card className="flex flex-col lg:col-span-7">
+          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+            <div>
+              <CardTitle>Applications received</CardTitle>
+              <CardDescription>Per week, last eight weeks</CardDescription>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-2xl font-bold leading-none tabular-nums">
+                {appsLast8Weeks}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {appsThisWeek} this week
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <AdminAppsChart data={weekSeries} />
+          </CardContent>
+        </Card>
 
-      {/* Calendar */}
-      <HomeCalendar events={intakeEvents(activeIntake)} />
+        {/* Calendar */}
+        <HomeCalendar
+          events={intakeEvents(activeIntake)}
+          layout="stack"
+          className="lg:col-span-5"
+        />
+      </div>
 
       {/* Two-column summary panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -329,9 +359,6 @@ export default async function AdminHome() {
           <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
               <CardTitle>Applications by stage</CardTitle>
-              <CardDescription>
-                Click any stage count to open its filtered list.
-              </CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <a href="/admin/export/applications" download>
@@ -356,35 +383,47 @@ export default async function AdminHome() {
                 </Link>
               ))}
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50/70 px-3.5 py-2.5 text-xs text-amber-900">
-              <div className="space-x-3">
-                <Link
-                  href="/admin/applications?stage=applied_unpaid"
-                  className="font-semibold underline-offset-2 hover:underline"
-                >
-                  Unpaid: {unpaidCount}
-                </Link>
-                <span>·</span>
-                <Link
-                  href="/admin/applications?stuck=1"
-                  className="font-semibold underline-offset-2 hover:underline"
-                >
-                  Stuck 14+ days: {stuckCount}
-                </Link>
-                <span>·</span>
-                <Link
-                  href="/admin/applications?stage=applied_unpaid&stuck=1"
-                  className="font-semibold underline-offset-2 hover:underline"
-                >
-                  Unpaid &amp; stuck: {unpaidAndStuckCount}
-                </Link>
-              </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3.5 py-2.5 text-sm">
+              <AlertTriangle
+                className="size-4 shrink-0 text-amber-700 dark:text-amber-400"
+                aria-hidden
+              />
+              <Link
+                href="/admin/applications?stage=applied_unpaid"
+                className="text-muted-foreground transition hover:text-foreground"
+              >
+                <span className="font-semibold tabular-nums text-foreground">
+                  {unpaidCount}
+                </span>{" "}
+                unpaid
+              </Link>
+              <span className="text-border" aria-hidden>
+                |
+              </span>
               <Link
                 href="/admin/applications?stuck=1"
-                className="font-semibold text-primary hover:underline"
+                className="text-muted-foreground transition hover:text-foreground"
               >
-                Filter stuck →
+                <span className="font-semibold tabular-nums text-foreground">
+                  {stuckCount}
+                </span>{" "}
+                stuck 14+ days
               </Link>
+              <span className="text-border" aria-hidden>
+                |
+              </span>
+              <Link
+                href="/admin/applications?stage=applied_unpaid&stuck=1"
+                className="text-muted-foreground transition hover:text-foreground"
+              >
+                <span className="font-semibold tabular-nums text-foreground">
+                  {unpaidAndStuckCount}
+                </span>{" "}
+                unpaid &amp; stuck
+              </Link>
+              <Button variant="outline" size="sm" className="ml-auto" asChild>
+                <Link href="/admin/applications?stuck=1">Filter stuck</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -398,7 +437,7 @@ export default async function AdminHome() {
                 Total outstanding:{" "}
                 <Link
                   href="/admin/students?filter=owing"
-                  className="font-semibold text-amber-700 hover:underline"
+                  className="font-semibold text-amber-700 dark:text-amber-400 hover:underline"
                 >
                   {formatUGX(totalFeesOutstanding)}
                 </Link>
@@ -435,7 +474,7 @@ export default async function AdminHome() {
                             </span>
                           )}
                         </Link>
-                        <span className="shrink-0 font-semibold text-amber-700">
+                        <span className="shrink-0 font-semibold text-amber-700 dark:text-amber-400">
                           {formatUGX(fees?.balance ?? 0)}
                         </span>
                       </div>
@@ -466,7 +505,7 @@ export default async function AdminHome() {
               ·{" "}
               <Link
                 href="/admin/students?filter=under_threshold"
-                className="font-semibold text-red-700 hover:underline"
+                className="font-semibold text-red-700 dark:text-red-400 hover:underline"
               >
                 {studentsUnderThreshold.length} below {studentListData.threshold}%
               </Link>
@@ -517,14 +556,14 @@ export default async function AdminHome() {
               <CardDescription>
                 <Link
                   href="/admin/inventory?filter=low"
-                  className="font-semibold text-amber-700 hover:underline"
+                  className="font-semibold text-amber-700 dark:text-amber-400 hover:underline"
                 >
                   {lowStockItems.length} low-stock
                 </Link>{" "}
                 ·{" "}
                 <Link
                   href="/admin/equipment?filter=broken"
-                  className="font-semibold text-red-700 hover:underline"
+                  className="font-semibold text-red-700 dark:text-red-400 hover:underline"
                 >
                   {equipmentNeedingRepair.length} needing repair
                 </Link>
@@ -534,24 +573,26 @@ export default async function AdminHome() {
           <CardContent>
             {lowStockItems.length === 0 && equipmentNeedingRepair.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                All consumables are above reorder level and all machines are
-                working.
+                Nothing low or broken.
               </p>
             ) : (
-              <div className="space-y-2 text-sm">
+              <div className="divide-y text-sm">
                 {lowStockItems.slice(0, 4).map(({ consumable, stockLevel }) => (
                   <Link
                     key={consumable.id}
                     href="/admin/inventory?filter=low"
-                    className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 transition hover:border-amber-400"
+                    className="flex items-center gap-3 py-2.5 transition hover:text-primary"
                   >
-                    <span className="font-medium">
+                    <span className="flex-1 font-medium">
                       {consumable.name}
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        (≤ {consumable.reorderLevel} {consumable.unit})
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        reorder ≤ {consumable.reorderLevel} {consumable.unit}
                       </span>
                     </span>
-                    <span className="font-semibold text-amber-800">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                      Low stock
+                    </span>
+                    <span className="w-20 shrink-0 text-right font-medium tabular-nums">
                       {stockLevel} {consumable.unit}
                     </span>
                   </Link>
@@ -560,22 +601,23 @@ export default async function AdminHome() {
                   <Link
                     key={item.id}
                     href="/admin/equipment?filter=broken"
-                    className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50/50 px-3 py-2 transition hover:border-red-400"
+                    className="flex items-center gap-3 py-2.5 transition hover:text-primary"
                   >
-                    <span className="font-medium">
+                    <span className="flex-1 font-medium">
                       {item.assetCode} · {item.type}
                       {item.booth && (
-                        <span className="ml-2 text-xs text-muted-foreground">
+                        <span className="ml-2 text-xs font-normal text-muted-foreground">
                           ({item.booth})
                         </span>
                       )}
                     </span>
-                    <span className="text-xs font-semibold text-red-700">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-red-700 dark:text-red-400">
                       {item.status === "out_of_service"
                         ? "Out of service"
-                        : "Needs repair"}{" "}
-                      ({openFaultCount})
+                        : "Needs repair"}
+                      {openFaultCount > 1 ? ` (${openFaultCount})` : ""}
                     </span>
+                    <span className="w-20 shrink-0" aria-hidden />
                   </Link>
                 ))}
               </div>
@@ -588,10 +630,7 @@ export default async function AdminHome() {
       <Card>
         <CardHeader>
           <CardTitle>CSV exports</CardTitle>
-          <CardDescription>
-            Download any school list as a UTF-8 CSV for board reporting,
-            accounting, or monthly backups.
-          </CardDescription>
+          <CardDescription>For reporting and backups.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">

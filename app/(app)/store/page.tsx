@@ -4,7 +4,7 @@ import { ArrowLeftRight, Package, Wrench } from "lucide-react";
 import { requireRole } from "@/lib/permissions";
 import { getDb } from "@/lib/db";
 import { stockMovements } from "@/lib/db/schema";
-import { displayLastName, formatDate } from "@/lib/format";
+import { displayFirstName, formatDate } from "@/lib/format";
 import { loadConsumables, loadEquipmentRegister } from "@/lib/inventory-data";
 import { getActiveIntake, intakeEvents } from "@/lib/intake";
 import { HomeCalendar } from "@/components/home-calendar";
@@ -85,12 +85,8 @@ export default async function StoreHome() {
             Store Keeper Workspace · Workshop &amp; Consumables
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">
-            Welcome, {displayLastName(storeKeeper.fullName)}
+            Welcome, {displayFirstName(storeKeeper.fullName)}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Low-stock consumables, open machine faults, and the latest stock
-            movements. Every number opens its filtered list.
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild>
@@ -149,9 +145,7 @@ export default async function StoreHome() {
           <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
               <CardTitle>Low-stock items ({lowStockItems.length})</CardTitle>
-              <CardDescription>
-                Computed stock at or below the reorder level.
-              </CardDescription>
+              <CardDescription>At or below reorder level</CardDescription>
             </div>
             <Link
               href="/store/consumables?filter=low"
@@ -170,9 +164,9 @@ export default async function StoreHome() {
                 {lowStockItems.map(({ consumable, stockLevel }) => (
                   <li
                     key={consumable.id}
-                    className="flex items-center justify-between gap-3 py-2.5"
+                    className="flex items-center gap-3 py-2.5"
                   >
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <Link
                         href="/store/consumables?filter=low"
                         className="font-medium hover:text-primary hover:underline"
@@ -184,7 +178,10 @@ export default async function StoreHome() {
                         {consumable.unit}
                       </div>
                     </div>
-                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                      Low stock
+                    </span>
+                    <span className="w-20 shrink-0 text-right font-medium tabular-nums">
                       {stockLevel} {consumable.unit}
                     </span>
                   </li>
@@ -201,9 +198,7 @@ export default async function StoreHome() {
               <CardTitle>
                 Open faults — newest first ({openFaultsNewestFirst.length})
               </CardTitle>
-              <CardDescription>
-                Faults reported directly and machine issues from lesson logs.
-              </CardDescription>
+              <CardDescription>Includes lesson-log reports</CardDescription>
             </div>
             <Link
               href="/store/equipment?filter=broken"
@@ -251,9 +246,7 @@ export default async function StoreHome() {
         <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
           <div>
             <CardTitle>Latest stock movements</CardTitle>
-            <CardDescription>
-              Append-only ledger (stock in, stock out, count adjustments).
-            </CardDescription>
+            <CardDescription>In, out and count adjustments</CardDescription>
           </div>
           <Link
             href="/store/consumables"

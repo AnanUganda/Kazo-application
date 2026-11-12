@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { IS_PREVIEW } from "@/lib/preview";
 
 /**
  * Keeps the Supabase auth session cookie fresh on every request. Does not make
@@ -8,7 +9,7 @@ import { createServerClient } from "@supabase/ssr";
  */
 export async function proxy(request: NextRequest) {
   // Preview mode bypasses Supabase entirely.
-  if (process.env.PREVIEW_MODE === "1") {
+  if (IS_PREVIEW) {
     return NextResponse.next({ request });
   }
 

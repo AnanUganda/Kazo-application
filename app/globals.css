@@ -35,14 +35,16 @@
     --chart-3: 150 48% 42%;
     --chart-4: 210 68% 52%;
     --chart-5: 280 46% 55%;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 25%;
-    --sidebar-primary: 349 100% 22%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 349 70% 96%;
-    --sidebar-accent-foreground: 349 100% 22%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 349 100% 22%;
+    /* Brand-maroon sidebar with light text (both themes). */
+    --sidebar-background: 349 100% 20%;
+    --sidebar-foreground: 349 35% 90%;
+    --sidebar-muted: 349 30% 74%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 349 100% 22%;
+    --sidebar-accent: 349 65% 29%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 349 60% 27%;
+    --sidebar-ring: 0 0% 100%;
   }
 
   .dark {
@@ -65,14 +67,15 @@
     --border: 0 0% 22%;
     --input: 0 0% 22%;
     --ring: 349 70% 55%;
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 349 70% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 18%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 349 70% 55%;
+    --sidebar-background: 349 55% 12%;
+    --sidebar-foreground: 349 25% 88%;
+    --sidebar-muted: 349 20% 68%;
+    --sidebar-primary: 0 0% 96%;
+    --sidebar-primary-foreground: 349 100% 22%;
+    --sidebar-accent: 349 45% 21%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 349 40% 19%;
+    --sidebar-ring: 349 70% 70%;
   }
 }
 

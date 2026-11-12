@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Student } from "@/lib/db/schema";
 import type { StudentListItem } from "@/lib/students-data";
 import { formatUGX } from "@/lib/format";
+import { StatusTag, type StatusTone } from "@/components/status-tag";
 
 export const STUDENT_STATUS_LABEL: Record<Student["status"], string> = {
   active: "Active",
@@ -10,18 +11,13 @@ export const STUDENT_STATUS_LABEL: Record<Student["status"], string> = {
 };
 
 export function StudentStatusBadge({ status }: { status: Student["status"] }) {
-  const styles: Record<Student["status"], string> = {
-    active: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    suspended: "bg-amber-50 text-amber-800 border-amber-200",
-    dropped_out: "bg-neutral-100 text-neutral-600 border-neutral-200",
-  };
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${styles[status]}`}
-    >
-      {STUDENT_STATUS_LABEL[status]}
-    </span>
-  );
+  const tone: StatusTone =
+    status === "active"
+      ? "success"
+      : status === "suspended"
+        ? "warning"
+        : "neutral";
+  return <StatusTag tone={tone}>{STUDENT_STATUS_LABEL[status]}</StatusTag>;
 }
 
 export function AttendanceBadge({
@@ -34,20 +30,17 @@ export function AttendanceBadge({
   threshold: number;
 }) {
   if (rate === null) {
-    return <span className="text-xs text-neutral-500">No sessions yet</span>;
+    return <span className="text-xs text-muted-foreground">No sessions yet</span>;
   }
   if (belowThreshold) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-        <span className="h-1.5 w-1.5 rounded-full bg-red-600" aria-hidden />
-        {rate}% · Below {threshold}%
+      <span className="text-xs font-semibold text-red-700 dark:text-red-400">
+        {rate}% · below {threshold}%
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 text-xs font-semibold text-neutral-700">
-      {rate}%
-    </span>
+    <span className="text-xs font-semibold text-muted-foreground">{rate}%</span>
   );
 }
 
@@ -103,11 +96,10 @@ export function StudentListView({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">Students</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            <span className="font-medium text-neutral-700">{intakeName}</span> ·
+          <h1 className="text-xl font-bold text-foreground">Students</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{intakeName}</span> ·
             attendance threshold {threshold}%
-            {showFees ? " · fee balances derived from ledger" : ""}
           </p>
         </div>
         {showFees && (
@@ -184,13 +176,13 @@ export function StudentListView({
 
       {/* Main student list (responsive cards + desktop columns) */}
       {mainItems.length === 0 ? (
-        <div className="card text-sm text-neutral-500">
+        <div className="card text-sm text-muted-foreground">
           No students match the current filter.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border bg-background shadow-sm">
           <div
-            className={`hidden border-b border-neutral-200 bg-neutral-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 md:grid md:items-center md:gap-4 ${
+            className={`hidden border-b border bg-muted/50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid md:items-center md:gap-4 ${
               showFees
                 ? "md:grid-cols-[2fr_1fr_1.2fr_1.3fr_1fr]"
                 : "md:grid-cols-[2fr_1fr_1.3fr_1fr]"
@@ -203,12 +195,12 @@ export function StudentListView({
             <div className="text-right">Status</div>
           </div>
 
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-border">
             {mainItems.map(({ student, attendance, fees }) => (
               <Link
                 key={student.id}
                 href={`${basePath}/${student.id}`}
-                className={`block px-4 py-4 transition hover:bg-neutral-50 sm:px-5 md:grid md:items-center md:gap-4 ${
+                className={`block px-4 py-4 transition hover:bg-muted/50 sm:px-5 md:grid md:items-center md:gap-4 ${
                   showFees
                     ? "md:grid-cols-[2fr_1fr_1.2fr_1.3fr_1fr]"
                     : "md:grid-cols-[2fr_1fr_1.3fr_1fr]"
@@ -216,10 +208,10 @@ export function StudentListView({
               >
                 <div className="flex items-start justify-between gap-2 md:block">
                   <div className="min-w-0">
-                    <div className="truncate font-semibold text-neutral-900">
+                    <div className="truncate font-semibold text-foreground">
                       {student.fullName}
                     </div>
-                    <div className="text-xs text-neutral-500">
+                    <div className="text-xs text-muted-foreground">
                       {student.phone}
                     </div>
                   </div>
@@ -228,19 +220,19 @@ export function StudentListView({
                   </div>
                 </div>
 
-                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-neutral-700 md:mt-0 md:block">
-                  <span className="text-xs text-neutral-500 md:hidden">
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-foreground md:mt-0 md:block">
+                  <span className="text-xs text-muted-foreground md:hidden">
                     Booth:
                   </span>
-                  <span className="font-medium text-neutral-800">
+                  <span className="font-medium text-foreground">
                     {student.booth || (
-                      <span className="text-neutral-500">Unassigned</span>
+                      <span className="text-muted-foreground">Unassigned</span>
                     )}
                   </span>
                 </div>
 
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:mt-0 md:block">
-                  <span className="text-xs text-neutral-500 md:hidden">
+                  <span className="text-xs text-muted-foreground md:hidden">
                     Attendance:
                   </span>
                   <AttendanceBadge
@@ -252,19 +244,19 @@ export function StudentListView({
 
                 {showFees && fees !== null && (
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:mt-0 md:block">
-                    <span className="text-xs text-neutral-500 md:hidden">
+                    <span className="text-xs text-muted-foreground md:hidden">
                       Fee balance:
                     </span>
                     {fees.totalDue === 0 && fees.paid === 0 ? (
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-muted-foreground">
                         Not billed yet
                       </span>
                     ) : fees.balance <= 0 ? (
-                      <span className="text-sm font-semibold text-emerald-700">
+                      <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
                         {formatUGX(0)} · Paid
                       </span>
                     ) : (
-                      <span className="text-sm font-semibold text-neutral-900">
+                      <span className="text-sm font-semibold text-foreground">
                         {formatUGX(fees.balance)}
                       </span>
                     )}
@@ -282,13 +274,13 @@ export function StudentListView({
 
       {/* Dropped-out records (kept outside the active list unless filtered directly) */}
       {status !== "dropped_out" && (
-        <details className="rounded-2xl border border-neutral-200 bg-white">
-          <summary className="cursor-pointer px-5 py-3 text-sm font-semibold text-neutral-700">
+        <details className="rounded-2xl border border bg-background">
+          <summary className="cursor-pointer px-5 py-3 text-sm font-semibold text-foreground">
             Dropped out — records kept ({droppedOutItems.length})
           </summary>
-          <div className="space-y-2 border-t border-neutral-100 p-4">
+          <div className="space-y-2 border-t border p-4">
             {droppedOutItems.length === 0 ? (
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-muted-foreground">
                 No dropped-out students in this intake.
               </p>
             ) : (
@@ -296,17 +288,17 @@ export function StudentListView({
                 <Link
                   key={student.id}
                   href={`${basePath}/${student.id}`}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-100 px-3 py-2.5 transition hover:border-brand-200"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border px-3 py-2.5 transition hover:border-brand-200"
                 >
                   <div>
-                    <span className="font-medium text-neutral-800">
+                    <span className="font-medium text-foreground">
                       {student.fullName}
                     </span>
-                    <span className="ml-2 text-xs text-neutral-500">
+                    <span className="ml-2 text-xs text-muted-foreground">
                       {student.phone}
                     </span>
                     {student.booth && (
-                      <span className="ml-2 text-xs text-neutral-500">
+                      <span className="ml-2 text-xs text-muted-foreground">
                         · {student.booth}
                       </span>
                     )}
@@ -318,7 +310,7 @@ export function StudentListView({
                       threshold={threshold}
                     />
                     {showFees && fees !== null && (
-                      <span className="text-xs font-semibold text-neutral-700">
+                      <span className="text-xs font-semibold text-foreground">
                         Balance {formatUGX(fees.balance)}
                       </span>
                     )}

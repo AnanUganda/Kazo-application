@@ -39,7 +39,7 @@ function ApplicationCard({ app }: { app: Application }) {
         <span>Applied {formatDate(app.createdAt)}</span>
         <span
           className={`inline-flex items-center gap-1 ${
-            stuck ? "font-semibold text-amber-600" : ""
+            stuck ? "font-semibold text-amber-700 dark:text-amber-400" : ""
           }`}
         >
           {stuck && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
@@ -98,8 +98,7 @@ export default async function ApplicationsPage({
         <div>
           <h1 className="text-xl font-bold text-neutral-900">Applications</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Move applicants through the stages. The registration fee is confirmed
-            when moving to Registered.
+            Moving to Registered confirms the registration fee.
           </p>
         </div>
         <a

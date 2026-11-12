@@ -23,8 +23,7 @@ export default async function StaffPage() {
         <div>
           <h1 className="text-xl font-bold text-neutral-900">Staff</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Create accounts, assign roles, and deactivate staff. Deactivated staff
-            keep their record but cannot use the dashboard.
+            Deactivated staff keep their record but can&apos;t sign in.
           </p>
         </div>
         <Link

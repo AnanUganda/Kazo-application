@@ -2,6 +2,7 @@ import type { Intake, SyllabusTopic } from "@/lib/db/schema";
 import { topicState, weekNumber, type TopicState } from "@/lib/track-status";
 import { KTS_COURSE_POLICY } from "@/lib/syllabus-defaults";
 import { todayKampala } from "@/lib/format";
+import { StatusTag, type StatusTone } from "@/components/status-tag";
 
 const SEMESTERS = [
   {
@@ -18,11 +19,11 @@ const SEMESTERS = [
   },
 ];
 
-const STATE_STYLE: Record<TopicState, { label: string; cls: string }> = {
-  done: { label: "Done", cls: "bg-green-50 text-green-700" },
-  in_progress: { label: "In progress", cls: "bg-blue-50 text-blue-700" },
-  overdue: { label: "Overdue", cls: "bg-red-50 text-red-700" },
-  upcoming: { label: "Upcoming", cls: "bg-neutral-100 text-neutral-500" },
+const STATE_STYLE: Record<TopicState, { label: string; tone: StatusTone }> = {
+  done: { label: "Done", tone: "success" },
+  in_progress: { label: "In progress", tone: "info" },
+  overdue: { label: "Overdue", tone: "danger" },
+  upcoming: { label: "Upcoming", tone: "neutral" },
 };
 
 function weeksBetween(start: string, end: string): number {
@@ -35,11 +36,11 @@ function Bar({ label, pct, tone }: { label: string; pct: number; tone: string })
   const clamped = Math.max(0, Math.min(100, Math.round(pct * 100)));
   return (
     <div>
-      <div className="mb-1 flex justify-between text-xs text-neutral-500">
+      <div className="mb-1 flex justify-between text-xs text-muted-foreground">
         <span>{label}</span>
         <span>{clamped}%</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
         <div className={`h-full ${tone}`} style={{ width: `${clamped}%` }} />
       </div>
     </div>
@@ -69,17 +70,17 @@ export function SyllabusTimeline({
 
   return (
     <div className="space-y-6">
-      <div className="card space-y-2 border-neutral-200 bg-neutral-50/70 p-4 text-xs text-neutral-600">
+      <div className="card space-y-2 border bg-muted/70 p-4 text-xs text-muted-foreground">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-semibold text-neutral-900">
+          <span className="font-semibold text-foreground">
             {KTS_COURSE_POLICY.courseName}
           </span>
-          <span className="rounded-full bg-white px-2.5 py-0.5 font-medium text-neutral-700 border border-neutral-200">
+          <span className="rounded-full bg-background px-2.5 py-0.5 font-medium text-foreground border border">
             {KTS_COURSE_POLICY.duration} · Max {KTS_COURSE_POLICY.classSizeLimit}{" "}
             students
           </span>
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-neutral-500">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
           <span>Schedule: {KTS_COURSE_POLICY.schedule}</span>
           <span>
             Graduation: ≥{KTS_COURSE_POLICY.attendanceRequirementPct}%
@@ -100,13 +101,13 @@ export function SyllabusTimeline({
         return (
           <section key={sem.n} className="card">
             <div className="mb-3">
-              <h3 className="text-sm font-semibold text-neutral-900">
+              <h3 className="text-sm font-semibold text-foreground">
                 {sem.title}
-                <span className="ml-2 font-normal text-neutral-500">
+                <span className="ml-2 font-normal text-muted-foreground">
                   {sem.subtitle}
                 </span>
               </h3>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted-foreground">
                 {currentWeek === null
                   ? "Not started yet"
                   : `Week ${currentWeek} of ${totalWeeks}`}
@@ -119,13 +120,13 @@ export function SyllabusTimeline({
                 pct={total ? doneCount / total : 0}
                 tone="bg-brand"
               />
-              <Bar label="Semester elapsed" pct={elapsed} tone="bg-neutral-400" />
+              <Bar label="Semester elapsed" pct={elapsed} tone="bg-muted-foreground" />
             </div>
 
             {total === 0 ? (
-              <p className="text-sm text-neutral-500">No topics in this semester.</p>
+              <p className="text-sm text-muted-foreground">No topics in this semester.</p>
             ) : (
-              <ul className="divide-y divide-neutral-100">
+              <ul className="divide-y divide-border">
                 {semTopics.map((t) => {
                   const state = topicState(
                     t,
@@ -140,24 +141,22 @@ export function SyllabusTimeline({
                       className="flex items-center justify-between gap-3 py-2"
                     >
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-neutral-800">
+                        <div className="truncate text-sm font-medium text-foreground">
                           {t.title}
                         </div>
                         {t.description && (
-                          <div className="mt-0.5 line-clamp-2 text-xs text-neutral-500">
+                          <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                             {t.description}
                           </div>
                         )}
-                        <div className="mt-0.5 text-xs text-neutral-500">
+                        <div className="mt-0.5 text-xs text-muted-foreground">
                           Week {t.targetWeek} ·{" "}
                           {t.type === "theory" ? "Theory" : "Practical"}
                         </div>
                       </div>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${style.cls}`}
-                      >
+                      <StatusTag tone={style.tone} className="shrink-0">
                         {style.label}
-                      </span>
+                      </StatusTag>
                     </li>
                   );
                 })}
