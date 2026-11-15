@@ -59,3 +59,9 @@ export function formatDate(value: string | Date): string {
     timeZone: KAMPALA,
   }).format(d);
 }
+
+/** Human label for a lesson-log session. */
+export function sessionLabel(session: string): string {
+  if (session === "bible") return "Bible class";
+  return session === "afternoon" ? "Afternoon" : "Morning";
+}

@@ -26,12 +26,12 @@ export function AddTopicForm() {
   return (
     <form ref={ref} action={action} className="space-y-4">
       {state.error && (
-        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="alert-error">
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p className="alert-success">
           Topic added.
         </p>
       )}

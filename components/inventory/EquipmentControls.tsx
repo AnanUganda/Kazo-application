@@ -61,13 +61,13 @@ export function AddEquipmentForm({
       {state.error && (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+          className="alert-error text-xs"
         >
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700">
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950 dark:border-emerald-900">
           Equipment registered.
         </p>
       )}
@@ -199,7 +199,7 @@ export function EditEquipmentForm({
       >
         <input type="hidden" name="equipmentId" value={item.id} />
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -317,7 +317,7 @@ export function ReportFaultForm({
 
   return (
     <details className="rounded-xl border border bg-muted/70">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-50">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-primary hover:bg-accent">
         + Log fault on {assetCode}
       </summary>
       <form
@@ -327,7 +327,7 @@ export function ReportFaultForm({
       >
         <input type="hidden" name="equipmentId" value={equipmentId} />
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -392,7 +392,7 @@ export function ResolveFaultForm({
 
   return (
     <details className="mt-2 rounded-lg border border bg-background">
-      <summary className="cursor-pointer list-none px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+      <summary className="cursor-pointer list-none px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400">
         Resolve fault (record fix &amp; cost)
       </summary>
       <form
@@ -401,7 +401,7 @@ export function ResolveFaultForm({
       >
         <input type="hidden" name="faultId" value={fault.id} />
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -453,7 +453,7 @@ export function ResolveFaultForm({
             type="checkbox"
             name="restoreWorking"
             defaultChecked
-            className="rounded border text-brand focus:ring-brand"
+            className="rounded border text-primary focus:ring-ring"
           />
           Set equipment status back to Working
         </label>
@@ -497,7 +497,7 @@ export function LinkLessonIssueForm({
       </div>
       <SubmitButton label="Link fault" variant="secondary" />
       {state.error && (
-        <p role="alert" className="w-full text-xs font-medium text-red-700">
+        <p role="alert" className="w-full text-xs font-medium text-red-700 dark:text-red-400">
           {state.error}
         </p>
       )}

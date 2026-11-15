@@ -55,12 +55,12 @@ export function LessonLogForm({
       {initial?.logId && <input type="hidden" name="logId" value={initial.logId} />}
 
       {state.error && (
-        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="alert-error">
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p className="alert-success">
           Lesson log saved.
         </p>
       )}
@@ -87,34 +87,64 @@ export function LessonLogForm({
 
       {/* Topics */}
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-neutral-900">
+        <h3 className="section-title mb-2">
           Topics covered
         </h3>
         {topics.length === 0 ? (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             No syllabus topics yet. Ask an admin to build the plan.
           </p>
         ) : (
           <div className="space-y-2">
-            {topics.map((t) => (
-              <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap sm:gap-3">
-                <div className="min-w-0 flex-1 text-sm">
-                  <span className="text-neutral-800">{t.title}</span>
-                  <span className="ml-1 text-xs text-neutral-500">
-                    (S{t.semester} · {t.type === "theory" ? "Theory" : "Practical"})
-                  </span>
-                </div>
-                <select
-                  name={`topic_${t.id}`}
-                  defaultValue={progress[t.id] ?? "none"}
-                  className="field-input w-full py-1.5 sm:w-36"
+            {[...new Set(topics.map((t) => t.semester))].map((sem, idx) => {
+              const list = topics.filter((t) => t.semester === sem);
+              const touched = list.filter((t) => progress[t.id]).length;
+              return (
+                <details
+                  key={sem}
+                  open={idx === 0 || touched > 0}
+                  className="group rounded-xl border"
                 >
-                  <option value="none">—</option>
-                  <option value="started">Started</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-            ))}
+                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold">
+                    Semester {sem}
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {list.length} modules
+                      <span className="ml-2 inline-block transition-transform group-open:rotate-90">
+                        ›
+                      </span>
+                    </span>
+                  </summary>
+                  <ul className="divide-y border-t">
+                    {list.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:flex-nowrap sm:gap-3"
+                      >
+                        <label
+                          htmlFor={`topic_${t.id}`}
+                          className="min-w-0 flex-1 text-sm"
+                        >
+                          {t.title}
+                          <span className="ml-1.5 text-xs text-muted-foreground">
+                            {t.type === "theory" ? "Theory" : "Practical"}
+                          </span>
+                        </label>
+                        <select
+                          id={`topic_${t.id}`}
+                          name={`topic_${t.id}`}
+                          defaultValue={progress[t.id] ?? "none"}
+                          className="field-input w-full sm:w-40"
+                        >
+                          <option value="none">Not covered</option>
+                          <option value="started">Started</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              );
+            })}
           </div>
         )}
       </div>
@@ -127,12 +157,12 @@ export function LessonLogForm({
 
       {/* Attendance */}
       <div>
-        <h3 className="mb-1 text-sm font-semibold text-neutral-900">Attendance</h3>
-        <p className="mb-2 text-xs text-neutral-500">
+        <h3 className="section-title mb-1">Attendance</h3>
+        <p className="mb-2 text-xs text-muted-foreground">
           Tap anyone who was absent.
         </p>
         {students.length === 0 ? (
-          <p className="text-sm text-neutral-500">No active students in this intake.</p>
+          <p className="text-sm text-muted-foreground">No active students in this intake.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {students.map((s) => (
@@ -143,7 +173,7 @@ export function LessonLogForm({
                   defaultChecked={absentSet.has(s.id)}
                   className="peer sr-only"
                 />
-                <span className="inline-block rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 peer-checked:border-red-200 peer-checked:bg-red-50 peer-checked:text-red-700">
+                <span className="chip-toggle">
                   {s.fullName}
                 </span>
               </label>
@@ -153,8 +183,8 @@ export function LessonLogForm({
       </div>
 
       {/* Issue */}
-      <fieldset className="rounded-xl border border-neutral-200 p-4">
-        <legend className="px-1 text-sm font-semibold text-neutral-700">
+      <fieldset className="rounded-xl border p-4">
+        <legend className="px-1 text-sm font-semibold text-foreground">
           Report an issue (optional)
         </legend>
         <div className="space-y-3">
@@ -165,12 +195,12 @@ export function LessonLogForm({
             defaultValue={v?.issue?.description}
             className="field-input"
           />
-          <label className="flex items-center gap-2 text-sm text-neutral-700">
+          <label className="flex items-center gap-2 text-sm text-foreground">
             <input
               type="checkbox"
               name="issueMachine"
               defaultChecked={v?.issue?.isMachine}
-              className="h-4 w-4 rounded border-neutral-300"
+              className="size-5 rounded accent-[hsl(var(--primary))]"
             />
             Machine issue (notifies the store keeper)
           </label>

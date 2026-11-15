@@ -28,13 +28,13 @@ export function CreateStaffForm() {
       {state.error && (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="alert-error"
         >
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p className="alert-success">
           Staff account created.
         </p>
       )}
@@ -81,6 +81,7 @@ export function CreateStaffForm() {
           <option value="admin">Administrator</option>
           <option value="teacher">Teacher</option>
           <option value="store_keeper">Store keeper</option>
+          <option value="bible_teacher">Bible teacher</option>
         </select>
       </div>
 
@@ -97,7 +98,7 @@ export function CreateStaffForm() {
           className="field-input"
           autoComplete="new-password"
         />
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           At least 8 characters. Share it with the staff member privately.
         </p>
       </div>

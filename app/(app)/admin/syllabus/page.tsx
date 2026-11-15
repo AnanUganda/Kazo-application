@@ -18,16 +18,16 @@ export const metadata = { title: "Syllabus — Kazo Technical School" };
 
 function EditTopic({ topic }: { topic: SyllabusTopic }) {
   return (
-    <details className="group rounded-lg border border-neutral-200">
+    <details className="group rounded-lg border border-border">
       <summary className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm">
-        <span className="truncate font-medium text-neutral-800">
+        <span className="truncate font-medium text-foreground">
           {topic.title}
         </span>
-        <span className="shrink-0 text-xs text-neutral-500">
+        <span className="shrink-0 text-xs text-muted-foreground">
           Wk {topic.targetWeek} · {topic.type === "theory" ? "Theory" : "Practical"}
         </span>
       </summary>
-      <div className="space-y-3 border-t border-neutral-100 p-3">
+      <div className="space-y-3 border-t border-border p-3">
         <form action={updateTopic} className="space-y-3">
           <input type="hidden" name="id" value={topic.id} />
           <input
@@ -79,8 +79,8 @@ export default async function SyllabusPage() {
   if (!intake) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
-        <div className="card text-sm text-neutral-500">
+        <h1 className="page-title">Syllabus</h1>
+        <div className="card text-sm text-muted-foreground">
           There is no active intake. Create one in Intakes before building the
           syllabus plan.
         </div>
@@ -99,8 +99,8 @@ export default async function SyllabusPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="page-title">Syllabus</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             <span className="font-medium">{intake.name}</span> · 2 semesters ×
             13 weeks · 18 modules
           </p>
@@ -123,7 +123,7 @@ export default async function SyllabusPage() {
 
       {topics.length === 0 && archivedIntakes.length > 0 && (
         <div className="card max-w-xl">
-          <h2 className="text-sm font-semibold text-neutral-900">
+          <h2 className="section-title">
             Copy a plan from a previous intake
           </h2>
           <form action={copyFromIntake} className="mt-3 flex items-end gap-2">
@@ -151,7 +151,7 @@ export default async function SyllabusPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="lg:col-span-1">
           <div className="card">
-            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+            <h2 className="mb-4 section-title">
               Add a topic
             </h2>
             <AddTopicForm />
@@ -162,11 +162,11 @@ export default async function SyllabusPage() {
             const semTopics = topics.filter((t) => t.semester === sem);
             return (
               <div key={sem} className="card">
-                <h2 className="mb-3 text-sm font-semibold text-neutral-900">
+                <h2 className="mb-3 section-title">
                   Semester {sem} topics
                 </h2>
                 {semTopics.length === 0 ? (
-                  <p className="text-sm text-neutral-500">No topics yet.</p>
+                  <p className="text-sm text-muted-foreground">No topics yet.</p>
                 ) : (
                   <div className="space-y-2">
                     {semTopics.map((t) => (

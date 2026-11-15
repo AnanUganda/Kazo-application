@@ -96,7 +96,7 @@ export function StudentListView({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Students</h1>
+          <h1 className="page-title">Students</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{intakeName}</span> ·
             attendance threshold {threshold}%
@@ -288,7 +288,7 @@ export function StudentListView({
                 <Link
                   key={student.id}
                   href={`${basePath}/${student.id}`}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border px-3 py-2.5 transition hover:border-brand-200"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border px-3 py-2.5 transition hover:border-primary/40"
                 >
                   <div>
                     <span className="font-medium text-foreground">

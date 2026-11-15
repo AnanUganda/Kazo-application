@@ -21,8 +21,8 @@ export default async function StaffPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">Staff</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="page-title">Staff</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Deactivated staff keep their record but can&apos;t sign in.
           </p>
         </div>
@@ -38,7 +38,7 @@ export default async function StaffPage() {
         {/* Create form */}
         <section className="lg:col-span-1">
           <div className="card">
-            <h2 className="mb-4 text-sm font-semibold text-neutral-900">
+            <h2 className="mb-4 section-title">
               Add a staff account
             </h2>
             <CreateStaffForm />
@@ -48,7 +48,7 @@ export default async function StaffPage() {
         {/* List */}
         <section className="space-y-3 lg:col-span-2">
           {people.length === 0 && (
-            <div className="card text-sm text-neutral-500">
+            <div className="card text-sm text-muted-foreground">
               No staff yet. Add the first account on the left.
             </div>
           )}
@@ -60,24 +60,24 @@ export default async function StaffPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="truncate font-semibold text-neutral-900">
+                      <span className="truncate font-semibold text-foreground">
                         {person.fullName}
                       </span>
                       {isSelf && (
-                        <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-brand">
+                        <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase text-primary">
                           You
                         </span>
                       )}
                     </div>
-                    <div className="truncate text-sm text-neutral-500">
+                    <div className="truncate text-sm text-muted-foreground">
                       {person.email}
                     </div>
                   </div>
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                       person.isActive
-                        ? "bg-green-50 text-green-700"
-                        : "bg-neutral-100 text-neutral-500"
+                        ? "bg-green-50 text-green-700 dark:text-green-400 dark:bg-green-950"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {person.isActive ? "Active" : "Inactive"}
@@ -109,6 +109,9 @@ export default async function StaffPage() {
                         <option value="teacher">{roleLabel.teacher}</option>
                         <option value="store_keeper">
                           {roleLabel.store_keeper}
+                        </option>
+                        <option value="bible_teacher">
+                          {roleLabel.bible_teacher}
                         </option>
                       </select>
                     </div>

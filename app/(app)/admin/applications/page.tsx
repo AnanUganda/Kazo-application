@@ -33,9 +33,9 @@ function ApplicationCard({ app }: { app: Application }) {
   const stuck = days >= 14;
   return (
     <div className="card p-4">
-      <div className="font-semibold text-neutral-900">{app.fullName}</div>
-      <div className="text-sm text-neutral-500">{app.phone}</div>
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
+      <div className="font-semibold text-foreground">{app.fullName}</div>
+      <div className="text-sm text-muted-foreground">{app.phone}</div>
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
         <span>Applied {formatDate(app.createdAt)}</span>
         <span
           className={`inline-flex items-center gap-1 ${
@@ -96,8 +96,8 @@ export default async function ApplicationsPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">Applications</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="page-title">Applications</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Moving to Registered confirms the registration fee.
           </p>
         </div>
@@ -168,15 +168,15 @@ export default async function ApplicationsPage({
           return (
             <section key={col.key} className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-neutral-700">
+                <h2 className="section-title">
                   {col.title}
                 </h2>
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-500">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                   {items.length}
                 </span>
               </div>
               {items.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-neutral-200 p-4 text-center text-xs text-neutral-500">
+                <p className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
                   None
                 </p>
               ) : (
@@ -188,33 +188,33 @@ export default async function ApplicationsPage({
       </div>
 
       {/* Exits */}
-      <details className="rounded-2xl border border-neutral-200 bg-white">
-        <summary className="cursor-pointer px-5 py-3 text-sm font-semibold text-neutral-700">
+      <details className="rounded-2xl border border-border bg-card">
+        <summary className="cursor-pointer px-5 py-3 text-sm font-semibold text-foreground">
           Exits — not accepted & withdrew ({exits.length})
         </summary>
-        <div className="space-y-2 border-t border-neutral-100 p-4">
+        <div className="space-y-2 border-t border-border p-4">
           {exits.length === 0 ? (
-            <p className="text-sm text-neutral-500">No exited applications.</p>
+            <p className="text-sm text-muted-foreground">No exited applications.</p>
           ) : (
             exits.map((app) => (
               <div
                 key={app.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-100 px-3 py-2"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border px-3 py-2"
               >
                 <div>
-                  <span className="font-medium text-neutral-800">
+                  <span className="font-medium text-foreground">
                     {app.fullName}
                   </span>
-                  <span className="ml-2 text-xs text-neutral-500">
+                  <span className="ml-2 text-xs text-muted-foreground">
                     {app.phone}
                   </span>
                   {app.stage === "withdrew" && app.withdrewReason && (
-                    <span className="ml-2 text-xs text-neutral-500">
+                    <span className="ml-2 text-xs text-muted-foreground">
                       · {app.withdrewReason}
                     </span>
                   )}
                 </div>
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-500">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                   {STAGE_LABEL[app.stage]}
                 </span>
               </div>

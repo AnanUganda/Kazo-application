@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ApplicationStage, PaymentMethod } from "@/lib/db/schema";
 import type { StudentProfileData } from "@/lib/students-data";
-import { formatDate, formatUGX, todayKampala } from "@/lib/format";
+import { formatDate, formatUGX, sessionLabel, todayKampala } from "@/lib/format";
 import {
   BillFeeItemForm,
   EditStudentDetailsForm,
@@ -11,6 +11,7 @@ import {
 } from "@/app/(app)/admin/students/StudentAdminControls";
 import { AttendanceBadge, StudentStatusBadge } from "./StudentListView";
 import { StatusTag } from "@/components/status-tag";
+import { AssessmentForm } from "./AssessmentForm";
 
 const STAGE_LABEL: Record<ApplicationStage, string> = {
   applied_unpaid: "Applied (unpaid)",
@@ -49,8 +50,11 @@ export function StudentProfileView({
     absences,
     application,
     assignedEquipment,
+    practicals,
     fees,
   } = data;
+  const passed = practicals.filter((p) => p.attempts[0]?.result === "pass").length;
+  const canAssess = intake.status === "active" && student.status === "active";
   const canEdit = isAdmin && intake.status === "active";
   const today = todayKampala();
 
@@ -59,7 +63,7 @@ export function StudentProfileView({
       <div>
         <Link
           href={basePath}
-          className="text-xs font-semibold text-brand hover:underline"
+          className="text-xs font-semibold text-primary hover:underline"
         >
           ← Back to students
         </Link>
@@ -69,7 +73,7 @@ export function StudentProfileView({
       <header className="card flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-xl font-bold text-foreground">
+            <h1 className="page-title">
               {student.fullName}
             </h1>
             <StudentStatusBadge status={student.status} />
@@ -104,7 +108,7 @@ export function StudentProfileView({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="card space-y-4 lg:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-foreground">
+            <h2 className="section-title">
               Contact details &amp; next of kin
             </h2>
           </div>
@@ -176,7 +180,7 @@ export function StudentProfileView({
         </section>
 
         <section className="card space-y-4">
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="section-title">
             Workshop assignment
           </h2>
           <dl className="space-y-3 text-sm">
@@ -198,7 +202,7 @@ export function StudentProfileView({
                   {isAdmin && (
                     <Link
                       href="/admin/equipment"
-                      className="ml-1 font-semibold text-brand hover:underline"
+                      className="ml-1 font-semibold text-primary hover:underline"
                     >
                       Assign in Equipment →
                     </Link>
@@ -236,7 +240,7 @@ export function StudentProfileView({
                   {isAdmin && (
                     <Link
                       href="/admin/equipment"
-                      className="inline-block text-xs font-semibold text-brand hover:underline"
+                      className="inline-block text-xs font-semibold text-primary hover:underline"
                     >
                       Manage in Equipment →
                     </Link>
@@ -252,7 +256,7 @@ export function StudentProfileView({
       <section className="card space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">
+            <h2 className="section-title">
               Attendance
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -319,8 +323,8 @@ export function StudentProfileView({
                     <span className="font-medium text-foreground">
                       {formatDate(a.date)}
                     </span>
-                    <span className="ml-2 text-xs capitalize text-muted-foreground">
-                      {a.session} session
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {sessionLabel(a.session)}
                     </span>
                     {a.notes && (
                       <span className="ml-2 text-xs text-muted-foreground">
@@ -338,12 +342,106 @@ export function StudentProfileView({
         </div>
       </section>
 
+      {/* Practical weld assessments */}
+      <section className="card space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="section-title">Practical assessments</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Latest weld test result for each practical module
+            </p>
+          </div>
+          <span className="text-sm font-semibold tabular-nums">
+            {passed} of {practicals.length} passed
+          </span>
+        </div>
+
+        {practicals.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            This intake has no practical modules in its syllabus yet.
+          </p>
+        ) : (
+          <ul className="divide-y text-sm">
+            {practicals.map((p) => {
+              const latest = p.attempts[0];
+              return (
+                <li key={p.topicId} className="py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{p.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Semester {p.semester}
+                        {latest &&
+                          ` · ${formatDate(latest.date)}${
+                            p.attempts.length > 1
+                              ? ` · attempt ${p.attempts.length}`
+                              : ""
+                          }`}
+                      </div>
+                    </div>
+                    {latest?.score != null && (
+                      <span className="shrink-0 text-sm font-semibold tabular-nums">
+                        {latest.score}%
+                      </span>
+                    )}
+                    <StatusTag
+                      tone={
+                        !latest
+                          ? "neutral"
+                          : latest.result === "pass"
+                            ? "success"
+                            : "warning"
+                      }
+                      className="w-24 shrink-0 whitespace-nowrap text-right"
+                    >
+                      {!latest
+                        ? "Not assessed"
+                        : latest.result === "pass"
+                          ? "Pass"
+                          : "Redo"}
+                    </StatusTag>
+                  </div>
+                  {latest?.notes && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {latest.notes}
+                      {latest.assessorName ? ` — ${latest.assessorName}` : ""}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {canAssess && practicals.length > 0 && (
+          <details className="group rounded-xl border">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold">
+              Record an assessment
+              <span className="text-muted-foreground transition-transform group-open:rotate-45">
+                +
+              </span>
+            </summary>
+            <div className="border-t p-4">
+              <AssessmentForm
+                studentId={student.id}
+                today={today}
+                modules={practicals.map((p) => ({
+                  id: p.topicId,
+                  title: p.title,
+                  semester: p.semester,
+                }))}
+              />
+            </div>
+          </details>
+        )}
+      </section>
+
       {/* Fees — strictly Admin only; never rendered for Teacher */}
       {showFees && fees !== null && (
         <section className="card space-y-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-foreground">
+              <h2 className="section-title">
                 Fee ledger
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
@@ -370,7 +468,7 @@ export function StudentProfileView({
             </div>
             <div className="rounded-xl border border bg-muted/50 p-3.5">
               <div className="text-xs text-muted-foreground">Total balance due</div>
-              <div className="mt-1 text-base font-bold text-brand">
+              <div className="mt-1 text-base font-bold text-primary">
                 {formatUGX(fees.totals.balance)}
               </div>
             </div>
@@ -529,7 +627,7 @@ export function StudentProfileView({
 
       {/* Full Application History */}
       <section className="card space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">
+        <h2 className="section-title">
           Application history
         </h2>
         {!application ? (

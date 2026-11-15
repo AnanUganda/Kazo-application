@@ -29,18 +29,18 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-bold text-neutral-900">Settings</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="page-title">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Fees and attendance threshold.
         </p>
       </header>
 
       {/* Attendance threshold */}
       <section className="card max-w-xl">
-        <h2 className="text-sm font-semibold text-neutral-900">
+        <h2 className="section-title">
           Attendance threshold
         </h2>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Students below this attendance percentage are flagged.
         </p>
         <form
@@ -71,7 +71,7 @@ export default async function SettingsPage() {
       {/* Fee amounts */}
       <section className="card">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-neutral-900">Fee amounts</h2>
+          <h2 className="section-title">Fee amounts</h2>
           {fees.length === 0 && (
             <form action={restoreDefaultFeeTypes}>
               <button type="submit" className="btn-secondary py-2">
@@ -82,7 +82,7 @@ export default async function SettingsPage() {
         </div>
 
         {fees.length === 0 ? (
-          <p className="mt-4 text-sm text-neutral-500">
+          <p className="mt-4 text-sm text-muted-foreground">
             No fee items yet. Load the defaults (Registration 35,000; Semester 1
             800,000; Semester 2 800,000; Industrial tour 35,000) to get started.
           </p>
@@ -91,11 +91,11 @@ export default async function SettingsPage() {
             {fees.map((fee) => (
               <div
                 key={fee.code}
-                className="flex flex-wrap items-end justify-between gap-3 border-b border-neutral-100 pb-3 last:border-0 last:pb-0"
+                className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3 last:border-0 last:pb-0"
               >
                 <div className="min-w-0">
-                  <div className="font-medium text-neutral-900">{fee.name}</div>
-                  <div className="text-xs text-neutral-500">
+                  <div className="font-medium text-foreground">{fee.name}</div>
+                  <div className="text-xs text-muted-foreground">
                     {semesterLabel(fee.appliesToSemester)} · current{" "}
                     {formatUGX(fee.defaultAmount)}
                   </div>

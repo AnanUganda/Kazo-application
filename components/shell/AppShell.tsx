@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   type LucideIcon,
+  BookOpen,
   CalendarRange,
   ClipboardList,
+  GraduationCap,
   Home,
   LogOut,
   Menu,
@@ -38,12 +40,30 @@ const ICONS: Record<string, LucideIcon> = {
   equipment: Wrench,
   settings: Settings,
   staff: ShieldCheck,
+  bible: BookOpen,
+  intakes: GraduationCap,
 };
 
-function PreviewBanner({ role }: { role: StaffRole }) {
-  const roles: StaffRole[] = ["admin", "teacher", "store_keeper"];
+function PreviewBanner({
+  role,
+  aboveTabBar,
+}: {
+  role: StaffRole;
+  aboveTabBar: boolean;
+}) {
+  const roles: StaffRole[] = [
+    "admin",
+    "teacher",
+    "bible_teacher",
+    "store_keeper",
+  ];
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 flex flex-wrap items-center gap-2 border-t border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800 md:left-64 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+    <div
+      className={cn(
+        "fixed inset-x-0 z-20 flex flex-wrap items-center gap-2 border-t border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800 md:bottom-0 md:left-64 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200",
+        aboveTabBar ? "bottom-16" : "bottom-0",
+      )}
+    >
       <span className="font-semibold">Preview mode</span>
       <span>· sample data, no sign-in · viewing as {roleLabel[role]}</span>
       <span className="ml-auto flex items-center gap-1">
@@ -86,16 +106,32 @@ export function AppShell({
   const items = navForRole(role);
 
   const isActive = (href: string) => {
-    if (href === "/admin" || href === "/teacher" || href === "/store") {
+    // Each role's home is the first nav item; it only matches exactly.
+    if (href === items[0]?.href) {
       return pathname === href;
     }
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  // Phones get a bottom tab bar when the role has few enough destinations.
+  const tabBar = items.length <= 5;
+
   const nav = (
-    <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
-      {items.map((item) => {
+    <nav
+      aria-label="Main"
+      className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-3"
+    >
+      {items.map((item, i) => {
         const I = ICONS[item.icon] ?? Home;
+        const heading =
+          item.group && item.group !== items[i - 1]?.group ? (
+            <div
+              key={`group-${item.group}`}
+              className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-sidebar-muted/80"
+            >
+              {item.group}
+            </div>
+          ) : null;
         if (!item.implemented) {
           return (
             <span
@@ -110,23 +146,24 @@ export function AppShell({
             </span>
           );
         }
-        return (
+        return [
+          heading,
           <Link
             key={item.href}
             href={item.href}
             onClick={() => setOpen(false)}
             aria-current={isActive(item.href) ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               isActive(item.href)
                 ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground shadow-[inset_3px_0_0_hsl(var(--sidebar-primary))]"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground",
             )}
           >
-            <I className="size-4 shrink-0" />
+            <I className="size-4 shrink-0" aria-hidden />
             {item.label}
-          </Link>
-        );
+          </Link>,
+        ];
       })}
     </nav>
   );
@@ -180,7 +217,7 @@ export function AppShell({
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background px-4 py-3 md:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background/85 px-4 py-2.5 backdrop-blur-md md:hidden">
         <Logo compact />
         <div className="flex items-center gap-1">
           <ThemeToggle />
@@ -210,13 +247,45 @@ export function AppShell({
       <div className="md:pl-64">
         <main
           className={cn(
-            "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8",
-            preview && "pb-20",
+            "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10",
+            tabBar && "pb-24 md:pb-8",
+            preview && (tabBar ? "pb-40 md:pb-20" : "pb-24 md:pb-20"),
           )}
         >
           {children}
         </main>
-        {preview && <PreviewBanner role={role} />}
+        {preview && <PreviewBanner role={role} aboveTabBar={tabBar} />}
+
+        {/* Phone tab bar: navigation only, never actions. */}
+        {tabBar && (
+          <nav
+            aria-label="Main"
+            className="fixed inset-x-0 bottom-0 z-30 grid h-16 auto-cols-fr grid-flow-col border-t bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+          >
+            {items.map((item) => {
+              const I = ICONS[item.icon] ?? Home;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
+                    active ? "text-primary" : "text-muted-foreground",
+                  )}
+                >
+                  <I
+                    className="size-5"
+                    strokeWidth={active ? 2.4 : 1.8}
+                    aria-hidden
+                  />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
       </div>
     </div>
   );

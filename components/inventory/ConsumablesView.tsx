@@ -74,7 +74,7 @@ export function ConsumablesView({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">
+          <h1 className="page-title">
             Consumables &amp; stock
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -163,7 +163,7 @@ export function ConsumablesView({
         {/* Add new consumable */}
         <section className="lg:col-span-1">
           <div className="card space-y-4">
-            <h2 className="text-sm font-semibold text-foreground">
+            <h2 className="section-title">
               Add consumable item
             </h2>
             <AddConsumableForm />
@@ -245,7 +245,7 @@ export function ConsumablesView({
                           m.type === "in"
                             ? "text-emerald-700 dark:text-emerald-400 font-semibold"
                             : m.type === "out"
-                              ? "text-brand font-semibold"
+                              ? "text-primary font-semibold"
                               : "text-amber-800 dark:text-amber-400 font-semibold";
                         return (
                           <div

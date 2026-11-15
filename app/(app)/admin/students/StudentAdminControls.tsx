@@ -78,7 +78,7 @@ export function StudentStatusControl({
       </div>
       <SubmitButton label="Update status" variant="secondary" />
       {state.error && (
-        <p role="alert" className="w-full text-xs font-medium text-red-700">
+        <p role="alert" className="w-full text-xs font-medium text-red-700 dark:text-red-400">
           {state.error}
         </p>
       )}
@@ -96,7 +96,7 @@ export function EditStudentDetailsForm({ student }: { student: Student }) {
 
   return (
     <details className="group rounded-xl border border bg-muted/60">
-      <summary className="cursor-pointer list-none rounded-xl px-4 py-2.5 text-sm font-semibold text-brand hover:bg-brand-50">
+      <summary className="cursor-pointer list-none rounded-xl px-4 py-2.5 text-sm font-semibold text-primary hover:bg-accent">
         Edit student &amp; booth details
       </summary>
       <form
@@ -108,13 +108,13 @@ export function EditStudentDetailsForm({ student }: { student: Student }) {
         {state.error && (
           <p
             role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+            className="alert-error text-xs"
           >
             {state.error}
           </p>
         )}
         {state.ok && (
-          <p className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-xs font-medium text-green-700">
+          <p className="alert-success text-xs">
             Student details saved.
           </p>
         )}
@@ -276,7 +276,7 @@ export function BillFeeItemForm({
         variant="secondary"
       />
       {state.error && (
-        <p role="alert" className="text-xs font-medium text-red-700">
+        <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
           {state.error}
         </p>
       )}
@@ -314,7 +314,7 @@ export function RecordPaymentForm({
 
   return (
     <details className="group rounded-xl border border bg-muted/60">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-50">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-primary hover:bg-accent">
         + Record payment for {feeName}
       </summary>
       <form
@@ -326,7 +326,7 @@ export function RecordPaymentForm({
         <input type="hidden" name="feeTypeCode" value={feeTypeCode} />
 
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -466,7 +466,7 @@ export function ReversePaymentForm({
           />
         </div>
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}

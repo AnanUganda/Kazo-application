@@ -9,7 +9,7 @@ import { getDb } from "@/lib/db";
 import { staff } from "@/lib/db/schema";
 import { logActivity } from "@/lib/activity";
 
-const roleEnum = z.enum(["admin", "teacher", "store_keeper"]);
+const roleEnum = z.enum(["admin", "teacher", "store_keeper", "bible_teacher"]);
 
 const createSchema = z.object({
   fullName: z.string().trim().min(2, "Enter the full name."),

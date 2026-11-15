@@ -87,7 +87,7 @@ export function EquipmentView({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">
+          <h1 className="page-title">
             Equipment register &amp; faults
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -234,7 +234,7 @@ export function EquipmentView({
         {/* Register new equipment */}
         <section className="lg:col-span-1">
           <div className="card space-y-4">
-            <h2 className="text-sm font-semibold text-foreground">
+            <h2 className="section-title">
               Register equipment
             </h2>
             <AddEquipmentForm
@@ -276,7 +276,7 @@ export function EquipmentView({
                           isAdmin ? (
                             <Link
                               href={`/admin/students/${item.assignedStudentId}`}
-                              className="font-semibold text-brand hover:underline"
+                              className="font-semibold text-primary hover:underline"
                             >
                               {assignedStudentName}
                             </Link>
@@ -335,7 +335,7 @@ export function EquipmentView({
                               <div className="font-semibold text-foreground">
                                 {f.problem}
                                 {f.lessonIssueId && (
-                                  <span className="ml-2 rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
+                                  <span className="ml-2 rounded bg-accent px-1.5 py-0.5 text-[10px] font-semibold text-primary">
                                     From lesson log
                                   </span>
                                 )}

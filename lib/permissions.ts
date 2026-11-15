@@ -23,5 +23,7 @@ export function homePathForRole(role: StaffRole): string {
       return "/teacher";
     case "store_keeper":
       return "/store";
+    case "bible_teacher":
+      return "/bible";
   }
 }

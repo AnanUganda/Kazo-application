@@ -118,7 +118,7 @@ export function SyllabusTimeline({
               <Bar
                 label={`Topics complete (${doneCount}/${total})`}
                 pct={total ? doneCount / total : 0}
-                tone="bg-brand"
+                tone="bg-primary"
               />
               <Bar label="Semester elapsed" pct={elapsed} tone="bg-muted-foreground" />
             </div>

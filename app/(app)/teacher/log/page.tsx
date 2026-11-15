@@ -19,8 +19,8 @@ export default async function LogLessonPage() {
   if (!intake) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-neutral-900">Log a lesson</h1>
-        <div className="card text-sm text-neutral-500">
+        <h1 className="page-title">Log a lesson</h1>
+        <div className="card text-sm text-muted-foreground">
           There is no active intake yet.
         </div>
       </div>
@@ -51,8 +51,8 @@ export default async function LogLessonPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-bold text-neutral-900">Log today&apos;s lesson</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="page-title">Log today&apos;s lesson</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           {intake.name} · takes about a minute.
         </p>
       </header>
@@ -74,28 +74,28 @@ export default async function LogLessonPage() {
         </section>
 
         <section className="lg:col-span-1">
-          <h2 className="mb-3 text-sm font-semibold text-neutral-700">
+          <h2 className="mb-3 section-title">
             Your recent logs
           </h2>
           <div className="space-y-2">
             {myLogs.length === 0 ? (
-              <div className="card text-sm text-neutral-500">No logs yet.</div>
+              <div className="card text-sm text-muted-foreground">No logs yet.</div>
             ) : (
               myLogs.map((log) => (
                 <Link
                   key={log.id}
                   href={`/lessons/${log.id}/edit`}
-                  className="card flex items-center justify-between p-3 transition hover:border-brand-200"
+                  className="card flex items-center justify-between p-3 transition hover:border-primary/40"
                 >
                   <div>
-                    <div className="text-sm font-medium text-neutral-800">
+                    <div className="text-sm font-medium text-foreground">
                       {formatDate(log.date)}
                     </div>
-                    <div className="text-xs capitalize text-neutral-500">
+                    <div className="text-xs capitalize text-muted-foreground">
                       {log.session}
                     </div>
                   </div>
-                  <span className="text-xs font-medium text-brand">Edit →</span>
+                  <span className="text-xs font-medium text-primary">Edit →</span>
                 </Link>
               ))
             )}

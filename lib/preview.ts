@@ -13,12 +13,18 @@ export const PREVIEW_IDS = {
   admin: "11111111-1111-4111-8111-111111111111",
   teacher: "22222222-2222-4222-8222-222222222222",
   store_keeper: "33333333-3333-4333-8333-333333333333",
+  bible_teacher: "44444444-4444-4444-8444-444444444444",
 } as const;
 
 export type PreviewRole = keyof typeof PREVIEW_IDS;
 
 export function previewRoleFromCookie(value: string | undefined): PreviewRole {
-  if (value === "teacher" || value === "store_keeper" || value === "admin") {
+  if (
+    value === "teacher" ||
+    value === "store_keeper" ||
+    value === "bible_teacher" ||
+    value === "admin"
+  ) {
     return value;
   }
   return "admin";

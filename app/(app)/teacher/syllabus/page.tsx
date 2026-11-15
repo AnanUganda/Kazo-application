@@ -13,8 +13,8 @@ export default async function TeacherSyllabusPage() {
   if (!intake) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
-        <div className="card text-sm text-neutral-500">
+        <h1 className="page-title">Syllabus</h1>
+        <div className="card text-sm text-muted-foreground">
           There is no active intake yet.
         </div>
       </div>
@@ -26,8 +26,8 @@ export default async function TeacherSyllabusPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-bold text-neutral-900">Syllabus</h1>
-        <p className="mt-1 text-sm text-neutral-500">{intake.name}</p>
+        <h1 className="page-title">Syllabus</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{intake.name}</p>
       </header>
       <SyllabusTimeline
         intake={intake}

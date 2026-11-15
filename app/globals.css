@@ -10,7 +10,7 @@
    background matches the existing app grey so current pages are unchanged. */
 @layer base {
   :root {
-    --background: 0 0% 97%;
+    --background: 24 14% 96%;
     --foreground: 0 0% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
@@ -18,18 +18,18 @@
     --popover-foreground: 0 0% 10%;
     --primary: 349 100% 22%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 93%;
+    --secondary: 24 10% 92%;
     --secondary-foreground: 0 0% 20%;
-    --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 24 10% 93%;
+    --muted-foreground: 20 4% 36%;
     --accent: 349 70% 96%;
     --accent-foreground: 349 100% 22%;
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 89%;
-    --input: 0 0% 85%;
+    --border: 24 8% 88%;
+    --input: 24 6% 80%;
     --ring: 349 100% 22%;
-    --radius: 0.75rem;
+    --radius: 0.625rem;
     --chart-1: 349 100% 35%;
     --chart-2: 24 90% 52%;
     --chart-3: 150 48% 42%;
@@ -48,13 +48,13 @@
   }
 
   .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 96%;
+    --background: 20 6% 6%;
+    --foreground: 0 0% 93%;
+    --card: 20 5% 10.5%;
+    --card-foreground: 0 0% 93%;
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 96%;
-    --primary: 349 70% 55%;
+    --primary: 349 72% 62%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 18%;
     --secondary-foreground: 0 0% 96%;
@@ -87,6 +87,15 @@ body {
 body {
   @apply bg-background text-foreground;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Native form controls (date pickers, selects) follow the theme. */
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
 }
 
 /* Shared surface + control styles, aligned to the shadcn token system so every
@@ -99,20 +108,56 @@ body {
 }
 
 @layer components {
+  /* Surfaces */
   .card {
-    @apply rounded-xl border bg-card p-5 text-card-foreground shadow-sm;
+    @apply rounded-xl border bg-card p-5 text-card-foreground shadow-sm sm:p-6;
   }
+
+  /* Type roles — one scale used on every screen. */
+  .page-title {
+    @apply text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-[1.75rem];
+  }
+  .page-subtitle {
+    @apply mt-1 text-sm text-muted-foreground;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+  .section-title {
+    @apply text-base font-semibold leading-snug tracking-tight text-foreground;
+  }
+
+  /* Controls: 44px tall on touch screens, 40px with a pointer. */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 sm:min-h-10;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-input bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 sm:min-h-10;
   }
   .field-label {
-    @apply mb-1 block text-sm font-medium text-foreground;
+    @apply mb-1.5 block text-sm font-medium text-foreground;
   }
+  /* 16px text on phones stops iOS zooming the page when a field is focused. */
   .field-input {
-    @apply flex w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50;
+    @apply flex min-h-11 w-full rounded-lg border border-input bg-card px-3 py-2 text-base text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50 sm:min-h-10 sm:text-sm;
+  }
+
+  /* Inline feedback */
+  .alert-error {
+    @apply rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200;
+  }
+  .alert-success {
+    @apply rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm font-medium text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200;
+  }
+
+  /* Tap-to-mark-absent name chip. Checked state changes colour AND adds the
+     word "absent", so it never relies on colour alone. */
+  .chip-toggle {
+    @apply inline-flex min-h-10 select-none items-center rounded-full border bg-card px-3.5 text-sm font-medium text-foreground transition-colors peer-checked:border-red-300 peer-checked:bg-red-50 peer-checked:text-red-800 peer-checked:after:ml-1.5 peer-checked:after:text-xs peer-checked:after:font-semibold peer-checked:after:uppercase peer-checked:after:tracking-wide peer-checked:after:content-['absent'] peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background dark:peer-checked:border-red-800 dark:peer-checked:bg-red-950 dark:peer-checked:text-red-200;
+  }
+  /* Single-choice chip (radio). */
+  .chip-choice {
+    @apply inline-flex min-h-10 min-w-20 select-none items-center justify-center rounded-full border bg-card px-4 text-sm font-semibold text-foreground transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background;
   }
 }
 
@@ -125,7 +170,7 @@ body {
   summary:focus-visible,
   [role="button"]:focus-visible,
   [tabindex]:focus-visible {
-    outline: 2px solid #710014;
+    outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
     border-radius: 0.5rem;
   }

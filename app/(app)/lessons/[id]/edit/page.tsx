@@ -12,6 +12,9 @@ import { loadSyllabus } from "@/lib/syllabus-data";
 import { daysSince, formatDate } from "@/lib/format";
 import { LessonLogForm, type LessonLogInitial } from "@/app/(app)/teacher/log/LessonLogForm";
 import { updateLessonLog } from "@/app/(app)/teacher/log/actions";
+import { BibleClassForm } from "@/app/(app)/bible/BibleClassForm";
+import { updateBibleClass } from "@/app/(app)/bible/actions";
+import { PageHeader } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Edit lesson log — Kazo Technical School" };
@@ -31,7 +34,7 @@ export default async function EditLessonLogPage({
 
   if (!log) {
     return (
-      <div className="card text-sm text-neutral-500">Lesson log not found.</div>
+      <div className="card text-sm text-muted-foreground">Lesson log not found.</div>
     );
   }
 
@@ -42,8 +45,8 @@ export default async function EditLessonLogPage({
   if (!canEdit) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-neutral-900">Lesson log</h1>
-        <div className="card text-sm text-neutral-500">
+        <h1 className="page-title">Lesson log</h1>
+        <div className="card text-sm text-muted-foreground">
           This log is from {formatDate(log.date)} and can no longer be edited
           (teachers may edit their own logs for 7 days). Ask an admin if a change
           is needed.
@@ -52,12 +55,40 @@ export default async function EditLessonLogPage({
     );
   }
 
-  const { topics } = await loadSyllabus(log.intakeId);
   const roster = await db
     .select({ id: students.id, fullName: students.fullName })
     .from(students)
     .where(and(eq(students.intakeId, log.intakeId), isNull(students.archivedAt)))
     .orderBy(students.fullName);
+
+  // The morning Bible class has its own, simpler form (no syllabus topics).
+  if (log.session === "bible") {
+    const absent = await db
+      .select({ studentId: lessonAbsences.studentId })
+      .from(lessonAbsences)
+      .where(eq(lessonAbsences.lessonLogId, id));
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Edit Bible class" subtitle={formatDate(log.date)} />
+        <div className="card max-w-2xl">
+          <BibleClassForm
+            action={updateBibleClass}
+            students={roster}
+            initial={{
+              logId: log.id,
+              date: log.date,
+              topic: log.topic ?? "",
+              notes: log.notes ?? "",
+              absentIds: absent.map((a) => a.studentId),
+            }}
+            submitLabel="Save changes"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const { topics } = await loadSyllabus(log.intakeId);
 
   const progressRows = await db
     .select({ topicId: lessonTopicProgress.topicId, status: lessonTopicProgress.status })
@@ -92,8 +123,8 @@ export default async function EditLessonLogPage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-bold text-neutral-900">Edit lesson log</h1>
-        <p className="mt-1 text-sm text-neutral-500">{formatDate(log.date)}</p>
+        <h1 className="page-title">Edit lesson log</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{formatDate(log.date)}</p>
       </header>
       <div className="card max-w-2xl">
         <LessonLogForm

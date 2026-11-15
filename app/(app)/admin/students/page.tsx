@@ -18,8 +18,8 @@ export default async function AdminStudentsPage({
   if (!intake) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-neutral-900">Students</h1>
-        <div className="card text-sm text-neutral-500">
+        <h1 className="page-title">Students</h1>
+        <div className="card text-sm text-muted-foreground">
           There is no active intake yet. Create one in Intakes before enrolling
           students.
         </div>

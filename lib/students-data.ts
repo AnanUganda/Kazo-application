@@ -11,8 +11,10 @@ import {
   lessonAbsences,
   lessonLogs,
   payments,
+  practicalAssessments,
   staff,
   students,
+  syllabusTopics,
   type Application,
   type Equipment,
   type FeeCharge,
@@ -64,6 +66,23 @@ export type StudentFeesProfile = {
   lines: StudentFeeLine[];
 };
 
+export type StudentPracticalAttempt = {
+  id: string;
+  date: string;
+  result: "pass" | "redo";
+  score: number | null;
+  notes: string | null;
+  assessorName: string | null;
+};
+
+/** One practical syllabus module with this student's attempts, newest first. */
+export type StudentPractical = {
+  topicId: string;
+  title: string;
+  semester: number;
+  attempts: StudentPracticalAttempt[];
+};
+
 export type StudentProfileData = {
   student: Student;
   intake: Intake;
@@ -72,6 +91,7 @@ export type StudentProfileData = {
   absences: StudentAbsenceRecord[];
   application: Application | null;
   assignedEquipment: Equipment[];
+  practicals: StudentPractical[];
   /** Strictly null when loaded for a non-admin role. */
   fees: StudentFeesProfile | null;
 };
@@ -406,6 +426,47 @@ export async function loadStudentProfile(
     fees = { totals, lines };
   }
 
+  const practicalTopics = await db
+    .select({
+      id: syllabusTopics.id,
+      title: syllabusTopics.title,
+      semester: syllabusTopics.semester,
+    })
+    .from(syllabusTopics)
+    .where(
+      and(
+        eq(syllabusTopics.intakeId, student.intakeId),
+        eq(syllabusTopics.type, "practical"),
+        isNull(syllabusTopics.archivedAt),
+      ),
+    )
+    .orderBy(asc(syllabusTopics.sortOrder));
+  const attemptRows = await db
+    .select({
+      id: practicalAssessments.id,
+      topicId: practicalAssessments.topicId,
+      date: practicalAssessments.date,
+      result: practicalAssessments.result,
+      score: practicalAssessments.score,
+      notes: practicalAssessments.notes,
+      assessorName: staff.fullName,
+    })
+    .from(practicalAssessments)
+    .leftJoin(staff, eq(practicalAssessments.createdBy, staff.id))
+    .where(
+      and(
+        eq(practicalAssessments.studentId, student.id),
+        isNull(practicalAssessments.archivedAt),
+      ),
+    )
+    .orderBy(desc(practicalAssessments.date), desc(practicalAssessments.createdAt));
+  const practicals: StudentPractical[] = practicalTopics.map((t) => ({
+    topicId: t.id,
+    title: t.title,
+    semester: t.semester,
+    attempts: attemptRows.filter((a) => a.topicId === t.id),
+  }));
+
   return {
     student,
     intake,
@@ -414,6 +475,7 @@ export async function loadStudentProfile(
     absences,
     application,
     assignedEquipment,
+    practicals,
     fees,
   };
 }

@@ -275,6 +275,15 @@ describe("Phase 8 Hardening — Ledger, Permissions, Attendance, Inventory & KTS
         "/store/equipment",
       ]);
 
+      // Bible teacher only sees the morning Bible class (no students, fees, inventory)
+      expect(navForRole("bible_teacher").map((n) => n.href)).toEqual([
+        "/bible",
+        "/bible/log",
+      ]);
+      expect(roleLabel.bible_teacher).toBe("Bible teacher");
+      expect(homePathForRole("bible_teacher")).toBe("/bible");
+      expect(previewRoleFromCookie("bible_teacher")).toBe("bible_teacher");
+
       expect(roleLabel.admin).toBe("Administrator");
       expect(roleLabel.teacher).toBe("Teacher");
       expect(roleLabel.store_keeper).toBe("Store keeper");

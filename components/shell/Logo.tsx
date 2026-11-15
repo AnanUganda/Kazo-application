@@ -22,7 +22,7 @@ export function Logo({
   return (
     <div className="flex items-center gap-2.5">
       {onSidebar ? (
-        <span className="rounded-lg bg-white p-1 shadow-sm">{crest}</span>
+        <span className="rounded-lg bg-card p-1 shadow-sm">{crest}</span>
       ) : (
         crest
       )}

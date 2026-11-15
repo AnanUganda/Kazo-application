@@ -21,11 +21,11 @@ export default async function TeacherStudentProfilePage({
       <div className="space-y-4">
         <Link
           href="/teacher/students"
-          className="text-xs font-semibold text-brand hover:underline"
+          className="text-xs font-semibold text-primary hover:underline"
         >
           ← Back to students
         </Link>
-        <div className="card text-sm text-neutral-500">Student not found.</div>
+        <div className="card text-sm text-muted-foreground">Student not found.</div>
       </div>
     );
   }

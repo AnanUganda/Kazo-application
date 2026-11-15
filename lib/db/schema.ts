@@ -34,6 +34,7 @@ export const staffRole = pgEnum("staff_role", [
   "admin",
   "teacher",
   "store_keeper",
+  "bible_teacher",
 ]);
 
 /**
@@ -321,9 +322,13 @@ export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
  * ------------------------------------------------------------------ */
 
 export const topicType = pgEnum("topic_type", ["theory", "practical"]);
+// "bible" is the daily one-hour morning Bible class. It is a lesson log like
+// any other (so absences feed the same attendance rate) but carries no
+// syllabus progress.
 export const lessonSession = pgEnum("lesson_session", [
   "morning",
   "afternoon",
+  "bible",
 ]);
 export const topicProgressStatus = pgEnum("topic_progress_status", [
   "started",
@@ -357,6 +362,8 @@ export const lessonLogs = pgTable("lesson_logs", {
     .references(() => staff.id),
   date: date("date").notNull(),
   session: lessonSession("session").notNull(),
+  /** Scripture or theme — used by the Bible class; null for welding lessons. */
+  topic: text("topic"),
   notes: text("notes"),
   ...auditColumns(),
 });
@@ -415,6 +422,42 @@ export const lessonIssues = pgTable("lesson_issues", {
   ...auditColumns(),
 });
 
+export const assessmentResult = pgEnum("assessment_result", [
+  "pass",
+  "redo",
+]);
+
+/**
+ * Practical weld assessments: one row per attempt by a student on a practical
+ * syllabus module. The latest attempt per module is the current standing.
+ */
+export const practicalAssessments = pgTable(
+  "practical_assessments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    studentId: uuid("student_id")
+      .notNull()
+      .references(() => students.id),
+    topicId: uuid("topic_id")
+      .notNull()
+      .references(() => syllabusTopics.id),
+    date: date("date").notNull(),
+    result: assessmentResult("result").notNull(),
+    /** Optional mark out of 100. */
+    score: integer("score"),
+    notes: text("notes"),
+    ...auditColumns(),
+  },
+  (t) => [
+    index("idx_assessment_student").on(t.studentId),
+    check(
+      "assessment_score_range",
+      sql`${t.score} IS NULL OR (${t.score} >= 0 AND ${t.score} <= 100)`,
+    ),
+  ],
+);
+
+export type PracticalAssessment = typeof practicalAssessments.$inferSelect;
 export type SyllabusTopic = typeof syllabusTopics.$inferSelect;
 export type TopicType = (typeof topicType.enumValues)[number];
 export type LessonLog = typeof lessonLogs.$inferSelect;

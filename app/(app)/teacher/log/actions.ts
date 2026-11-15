@@ -115,7 +115,7 @@ export async function createLessonLog(
   if (p.error) return { ok: false, error: p.error, values };
 
   const db = getDb();
-  await db.transaction(async (tx) => {
+  const newId = await db.transaction(async (tx) => {
     const [log] = await tx
       .insert(lessonLogs)
       .values({
@@ -201,14 +201,17 @@ export async function createLessonLog(
         }
       }
     }
+    return log.id;
+  });
 
-    await logActivity({
-      actorId: me.id,
-      action: "lesson.log_create",
-      entityType: "lesson_log",
-      entityId: log.id,
-      details: { absent: p.absentIds.length, topics: p.progress.length },
-    });
+  // Outside the transaction: logActivity uses its own connection, which
+  // would wait forever on a single-connection database.
+  await logActivity({
+    actorId: me.id,
+    action: "lesson.log_create",
+    entityType: "lesson_log",
+    entityId: newId,
+    details: { absent: p.absentIds.length, topics: p.progress.length },
   });
 
   revalidatePath("/teacher/log");
@@ -229,7 +232,8 @@ export async function updateLessonLog(
   const existing = (
     await getDb().select().from(lessonLogs).where(eq(lessonLogs.id, logId)).limit(1)
   )[0];
-  if (!existing) return { ok: false, error: "Log not found." };
+  if (!existing || existing.session === "bible")
+    return { ok: false, error: "Log not found." };
 
   const canEdit =
     me.role === "admin" ||
@@ -288,13 +292,13 @@ export async function updateLessonLog(
         createdBy: me.id,
         updatedBy: me.id,
       });
+  });
 
-    await logActivity({
-      actorId: me.id,
-      action: "lesson.log_update",
-      entityType: "lesson_log",
-      entityId: logId,
-    });
+  await logActivity({
+    actorId: me.id,
+    action: "lesson.log_update",
+    entityType: "lesson_log",
+    entityId: logId,
   });
 
   revalidatePath("/teacher/log");

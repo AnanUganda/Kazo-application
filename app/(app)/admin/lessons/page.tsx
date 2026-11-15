@@ -9,7 +9,7 @@ import {
   syllabusTopics,
 } from "@/lib/db/schema";
 import { getActiveIntake } from "@/lib/intake";
-import { daysSince, formatDate } from "@/lib/format";
+import { sessionLabel, daysSince, formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Lessons — Kazo Technical School" };
@@ -27,7 +27,7 @@ export default async function AdminLessonsPage({
   const teachers = await db
     .select({ id: staff.id, fullName: staff.fullName })
     .from(staff)
-    .where(inArray(staff.role, ["teacher", "admin"]))
+    .where(inArray(staff.role, ["teacher", "bible_teacher", "admin"]))
     .orderBy(staff.fullName);
 
   const topics = intake
@@ -58,6 +58,7 @@ export default async function AdminLessonsPage({
       id: lessonLogs.id,
       date: lessonLogs.date,
       session: lessonLogs.session,
+      topic: lessonLogs.topic,
       notes: lessonLogs.notes,
       teacherName: staff.fullName,
     })
@@ -76,18 +77,19 @@ export default async function AdminLessonsPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">Lessons</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Every lesson log. You can edit any log.
+          <h1 className="page-title">Lessons</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Welding lessons and the morning Bible class.
           </p>
         </div>
-        <a
-          href="/admin/export/lessons"
-          download
-          className="btn-secondary py-2"
-        >
-          Export CSV
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/bible/log" className="btn-secondary">
+            Log Bible class
+          </Link>
+          <a href="/admin/export/lessons" download className="btn-secondary">
+            Export CSV
+          </a>
+        </div>
       </header>
 
       <form method="get" className="flex flex-wrap items-end gap-3">
@@ -121,25 +123,26 @@ export default async function AdminLessonsPage({
 
       <div className="space-y-2">
         {logs.length === 0 ? (
-          <div className="card text-sm text-neutral-500">No lesson logs found.</div>
+          <div className="card text-sm text-muted-foreground">No lesson logs found.</div>
         ) : (
           logs.map((log) => (
             <Link
               key={log.id}
               href={`/lessons/${log.id}/edit`}
-              className="card flex items-center justify-between gap-3 p-4 transition hover:border-brand-200"
+              className="card flex items-center justify-between gap-3 p-4 transition hover:border-primary/40"
             >
               <div className="min-w-0">
-                <div className="text-sm font-medium text-neutral-800">
+                <div className="text-sm font-medium text-foreground">
                   {formatDate(log.date)} ·{" "}
-                  <span className="capitalize">{log.session}</span>
+                  {sessionLabel(log.session)}
                 </div>
-                <div className="truncate text-xs text-neutral-500">
+                <div className="truncate text-xs text-muted-foreground">
                   {log.teacherName}
+                  {log.topic ? ` · ${log.topic}` : ""}
                   {log.notes ? ` · ${log.notes}` : ""}
                 </div>
               </div>
-              <span className="shrink-0 text-xs font-medium text-brand">Edit →</span>
+              <span className="shrink-0 text-xs font-medium text-primary">Edit →</span>
             </Link>
           ))
         )}

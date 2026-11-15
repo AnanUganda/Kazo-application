@@ -36,11 +36,11 @@ export function ApplyForm() {
 
   if (status === "done") {
     return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-6 text-center">
-        <h2 className="text-base font-semibold text-green-800">
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-6 text-center dark:bg-green-950 dark:border-green-900">
+        <h2 className="text-base font-semibold text-green-800 dark:text-green-300">
           Application received
         </h2>
-        <p className="mt-2 text-sm text-green-700">
+        <p className="mt-2 text-sm text-green-700 dark:text-green-400">
           Thank you. The school will contact you on the phone number you
           provided. Keep your UGX 35,000 registration fee ready.
         </p>
@@ -60,7 +60,7 @@ export function ApplyForm() {
       {error && (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="alert-error"
         >
           {error}
         </p>
@@ -95,8 +95,8 @@ export function ApplyForm() {
 
       <Field name="heardAbout" label="How did you hear about Kazo?" />
 
-      <fieldset className="rounded-xl border border-neutral-200 p-4">
-        <legend className="px-1 text-sm font-semibold text-neutral-700">
+      <fieldset className="rounded-xl border border-border p-4">
+        <legend className="px-1 text-sm font-semibold text-foreground">
           Next of kin
         </legend>
         <div className="space-y-4">
@@ -134,7 +134,7 @@ function Field({
     <div>
       <label htmlFor={name} className="field-label">
         {label}
-        {required && <span className="text-brand"> *</span>}
+        {required && <span className="text-primary"> *</span>}
       </label>
       <input
         id={name}

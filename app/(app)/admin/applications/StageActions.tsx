@@ -30,7 +30,7 @@ function SubmitButton({ label, full = false }: { label: string; full?: boolean }
 function ErrorLine({ state }: { state: ActionState }) {
   if (!state.error) return null;
   return (
-    <p role="alert" className="text-xs font-medium text-red-700">
+    <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
       {state.error}
     </p>
   );
@@ -46,17 +46,17 @@ function Disclosure({
   children: React.ReactNode;
 }) {
   return (
-    <details className="group rounded-lg border border-neutral-200">
+    <details className="group rounded-lg border border-border">
       <summary
         className={`cursor-pointer list-none rounded-lg px-3 py-2 text-sm font-medium ${
           tone === "primary"
-            ? "text-brand hover:bg-brand-50"
-            : "text-neutral-500 hover:bg-neutral-50"
+            ? "text-primary hover:bg-accent"
+            : "text-muted-foreground hover:bg-muted/60"
         }`}
       >
         {summary}
       </summary>
-      <div className="space-y-3 border-t border-neutral-100 p-3">{children}</div>
+      <div className="space-y-3 border-t border-border p-3">{children}</div>
     </details>
   );
 }
@@ -161,7 +161,7 @@ function EnrolForm({ id }: { id: string }) {
     <Disclosure summary="Enrol (create student)">
       <form action={action} className="space-y-3">
         <input type="hidden" name="applicationId" value={id} />
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-muted-foreground">
           Creates the student profile in the active intake.
         </p>
         <ErrorLine state={state} />

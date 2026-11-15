@@ -56,13 +56,13 @@ export function CreateIntakeForm() {
       {state.error && (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="alert-error"
         >
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p className="alert-success">
           Intake created and set as active.
         </p>
       )}

@@ -105,7 +105,7 @@ export default async function StoreHome() {
           label="Low-stock items"
           icon={Package}
           value={String(lowStockItems.length)}
-          valueClassName="text-amber-700"
+          valueClassName="text-amber-700 dark:text-amber-400"
           hint={`Out of ${consumablesList.length} consumable lines`}
           badge={
             lowStockItems.length > 0
@@ -118,7 +118,7 @@ export default async function StoreHome() {
           label="Open equipment faults"
           icon={Wrench}
           value={String(openFaultsNewestFirst.length)}
-          valueClassName="text-red-700"
+          valueClassName="text-red-700 dark:text-red-400"
           hint="Open broken & faulted machines"
           badge={
             openFaultsNewestFirst.length > 0
@@ -282,9 +282,9 @@ export default async function StoreHome() {
                         : `${m.quantityDelta}`;
                     const badgeClass =
                       m.type === "in"
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-green-100 text-green-800 dark:text-green-300 dark:bg-green-950"
                         : m.type === "out"
-                          ? "bg-amber-100 text-amber-800"
+                          ? "bg-amber-100 text-amber-800 dark:text-amber-300 dark:bg-amber-950"
                           : "bg-muted text-muted-foreground";
                     return (
                       <tr key={m.id}>

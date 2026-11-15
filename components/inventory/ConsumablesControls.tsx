@@ -54,13 +54,13 @@ export function AddConsumableForm() {
       {state.error && (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+          className="alert-error text-xs"
         >
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700">
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950 dark:border-emerald-900">
           Consumable added.
         </p>
       )}
@@ -172,7 +172,7 @@ export function StockInForm({
 
   return (
     <details className="rounded-xl border border bg-muted/70">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400">
         + Stock in ({consumable.unit})
       </summary>
       <form
@@ -182,7 +182,7 @@ export function StockInForm({
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -283,7 +283,7 @@ export function StockOutForm({
 
   return (
     <details className="rounded-xl border border bg-muted/70">
-      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-brand hover:bg-brand-50">
+      <summary className="cursor-pointer list-none rounded-xl px-3 py-2 text-xs font-semibold text-primary hover:bg-accent">
         − Stock out ({consumable.unit})
       </summary>
       <form
@@ -293,7 +293,7 @@ export function StockOutForm({
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -400,7 +400,7 @@ export function StockCountForm({
         </p>
 
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}
@@ -470,7 +470,7 @@ export function EditConsumableForm({ consumable }: { consumable: Consumable }) {
       >
         <input type="hidden" name="consumableId" value={consumable.id} />
         {state.error && (
-          <p role="alert" className="text-xs font-medium text-red-700">
+          <p role="alert" className="text-xs font-medium text-red-700 dark:text-red-400">
             {state.error}
           </p>
         )}

@@ -32,6 +32,7 @@ async function seed(db: PreviewDb) {
     { id: PREVIEW_IDS.admin, email: "admin@preview.local", fullName: "Tumuhairwe Timothy Kirabo (Principal)", role: "admin" },
     { id: PREVIEW_IDS.teacher, email: "teacher@preview.local", fullName: "Opio Joel (Instructor)", role: "teacher" },
     { id: PREVIEW_IDS.store_keeper, email: "store@preview.local", fullName: "Musasizi Tonny (Store / Asst. Instructor)", role: "store_keeper" },
+    { id: PREVIEW_IDS.bible_teacher, email: "bible@preview.local", fullName: "Ssemakula Daniel (Bible teacher)", role: "bible_teacher" },
   ]);
 
   await db.insert(schema.appSettings).values({ id: "global", attendanceThreshold: 85 });
@@ -324,6 +325,47 @@ async function seed(db: PreviewDb) {
       createdBy: PREVIEW_IDS.teacher,
     })
     .returning();
+
+  // Daily morning Bible class (one hour) — logged by the Bible teacher.
+  const bibleTopics = [
+    "Proverbs 22:29 · Skill in your work",
+    "Colossians 3:23 · Working with all your heart",
+    "Proverbs 3:5–6 · Trust",
+    "Psalm 90:17 · Establish the work of our hands",
+    "Exodus 31:1–5 · Bezalel, the craftsman",
+    "Matthew 7:24–27 · Building on rock",
+    "Philippians 4:13 · Strength",
+    "James 1:2–4 · Perseverance",
+  ];
+  const bibleLogs = await db
+    .insert(schema.lessonLogs)
+    .values(
+      bibleTopics.map((topic, i) => ({
+        intakeId: intake.id,
+        teacherId: PREVIEW_IDS.bible_teacher,
+        date: iso(-(i + 1)),
+        session: "bible" as const,
+        topic,
+        createdBy: PREVIEW_IDS.bible_teacher,
+        createdAt: ts(-(i + 1)),
+      })),
+    )
+    .returning();
+  await db.insert(schema.lessonAbsences).values([
+    { lessonLogId: bibleLogs[1].id, studentId: studs[3].id },
+    { lessonLogId: bibleLogs[4].id, studentId: studs[1].id },
+  ]);
+
+  // Practical weld assessments (latest attempt per module is the standing).
+  const practicals = topics.filter((t) => t.type === "practical");
+  if (practicals.length >= 2) {
+    await db.insert(schema.practicalAssessments).values([
+      { studentId: studs[0].id, topicId: practicals[0].id, date: iso(-20), result: "pass", score: 82, notes: "Clean stringer beads, good arc length.", createdBy: PREVIEW_IDS.teacher },
+      { studentId: studs[0].id, topicId: practicals[1].id, date: iso(-6), result: "redo", score: 48, notes: "Undercut on the vertical run — repeat.", createdBy: PREVIEW_IDS.teacher },
+      { studentId: studs[1].id, topicId: practicals[0].id, date: iso(-20), result: "pass", score: 74, createdBy: PREVIEW_IDS.teacher },
+      { studentId: studs[2].id, topicId: practicals[0].id, date: iso(-20), result: "redo", score: 41, notes: "Porosity; slow travel speed.", createdBy: PREVIEW_IDS.teacher },
+    ]);
+  }
 
   // Phase 6: Consumables + stock movements (stock level derived from movements).
   const [rods, discs, plate, argon] = await db

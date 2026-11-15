@@ -83,11 +83,15 @@ const config: Config = {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        xl: "0.875rem",
+        xl: "1rem",
         "2xl": "1.25rem",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        // Hairline + soft lift: reads as a sheet of paper, not a floating box.
+        sm: "0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 1px 0 rgb(0 0 0 / 0.03)",
       },
       keyframes: {
         "accordion-down": {
